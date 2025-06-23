@@ -1,0 +1,157 @@
+/* managerDashboard.module.css */
+
+.main {
+  padding: 2rem;
+  background: linear-gradient(to bottom, #0f172a, #1e3a8a);
+  color: white;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.subheading {
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+.statsRow {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: #1e293b;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  flex: 1;
+  text-align: center;
+  position: relative;
+  color: #e5e7eb;
+}
+
+.statNumber {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.statNumberApproved {
+  color: #10b981;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.statNumberRejected {
+  color: #ef4444;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.icon {
+  position: static;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.25rem;
+}
+
+.filterButtons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.filterBtn {
+  padding: 1.4rem 2rem;
+  border: none;
+  border-radius: 0.25rem;
+  background-color: #1e40af;
+  color: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.filterBtn.active {
+  background-color: #2563eb;
+}
+
+.section {
+  background: #111827;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.documentCard {
+  background: #1e293b;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  color: #e5e7eb;
+}
+
+.docHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.docMeta {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+}
+
+.docPreview {
+  background: #334155;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  color: #e5e7eb;
+  margin: 0.5rem 0;
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+.reviewTextarea {
+  width: 100%;
+  background: #334155;
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  color: white;
+  margin-top: 0.5rem;
+  resize: vertical;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.approveBtn {
+  background: #16a34a;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.rejectBtn {
+  background: #dc2626;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-weight: bold;
+}

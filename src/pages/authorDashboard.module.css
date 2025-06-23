@@ -1,0 +1,153 @@
+/* /src/pages/authorDashboard.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Open+Sans&display=swap');
+
+.main {
+  font-family: 'Open Sans', sans-serif;
+  background: linear-gradient(135deg, #020024, #090979, #00d4ff);
+  color: #e1eaff;
+  min-height: 100vh;
+  padding: 4rem 2rem;
+}
+
+.heading {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  color: #00d4ff;
+  text-shadow: 0 0 3px #00d4ff;
+}
+
+.subheading {
+  font-size: 1.2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+  opacity: 0.9;
+}
+
+.statsRow {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-bottom: 5.5rem;
+}
+
+.statCard {
+  background: #022c54;
+  padding: 1.5rem;
+  border-radius: 16px;
+  width: 200px;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.2);
+  color: #b0d8ff;
+  font-weight: 600;
+  position: relative;
+}
+
+.statNumber {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  color: #00d4ff;
+}
+
+.statNumberApproved {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  color: #00ff99;
+}
+
+.statNumberRejected {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+  color: #ff4d4d;
+}
+
+.icon {
+  font-size: 1.5rem;
+  position: static;
+  top: 1rem;
+  right: 1rem;
+}
+
+.uploadSection {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.uploadBtn {
+  background: #00aaff;
+  color: #02142b;
+  border: none;
+  border-radius: 30px;
+  padding: 0.75rem 2rem;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0, 170, 255, 0.7);
+  transition: all 0.3s ease;
+}
+
+.uploadBtn:hover {
+  background: #0088cc;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #00aaff;
+}
+
+.documentSection {
+  margin-top: 2rem;
+  background: #01192f;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 0 16px rgba(0, 170, 255, 0.2);
+}
+
+.documentCard {
+  background: #022c54;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 8px rgba(0, 170, 255, 0.1);
+}
+
+.docHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  color: #e1eaff;
+  margin-bottom: 0.5rem;
+}
+
+.docStatusIcon {
+  font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+
+.docTitle {
+  flex: 1;
+  color: #00c4ff;
+}
+
+.docStatus {
+  text-transform: capitalize;
+  font-weight: bold;
+  color: #00ffcc;
+}
+
+.docMeta {
+  font-size: 0.9rem;
+  color: #aad8ff;
+  margin-bottom: 0.5rem;
+}
+
+.docComment {
+  font-size: 0.95rem;
+  color: #c0f7ff;
+  background: #013654;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+}
