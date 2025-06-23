@@ -3,9 +3,13 @@ import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './authorDashboard.module.css';
 import { useHistory } from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function AuthorDashboard() {
   const history = useHistory();
+  const { siteConfig } = useDocusaurusContext();
+  const githubToken = siteConfig.customFields.githubToken;
+
   const [documents, setDocuments] = useState([]);
   const [file, setFile] = useState(null);
   const [expandedDocId, setExpandedDocId] = useState(null);
@@ -37,17 +41,17 @@ export default function AuthorDashboard() {
     { total: 0, pending: 0, approved: 0, rejected: 0 }
   );
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!file) return alert('Please select a Markdown (.md) file');
+
+    if (!file.name.endsWith('.md')) {
+      alert('Only .md files are allowed');
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = async (e) => {
       const content = e.target.result;
-
-      if (!file.name.endsWith('.md')) {
-        alert('Only .md files are allowed');
-        return;
-      }
 
       const newDoc = {
         id: Date.now(),
@@ -61,40 +65,45 @@ export default function AuthorDashboard() {
         content,
       };
 
-      const updatedDocs = [newDoc, ...documents];
-      setDocuments(updatedDocs);
-      localStorage.setItem('docs', JSON.stringify(updatedDocs));
-      alert('Document uploaded and sent for review');
-
-      // Push to GitHub pending-documents
       const repo = 'kuldeepyadav7664/docusaurus';
-      const path = `pending-documents/${newDoc.title}.md`;
-      const token = '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';
+      const path = `pending-documents/${file.name}`;
       const encodedContent = btoa(unescape(encodeURIComponent(content)));
-      const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
-      const res = await fetch(url, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          message: `Author uploaded ${newDoc.title}`,
-          content: encodedContent,
-          committer: {
-            name: "Author",
-            email: "author@appsquadz.com"
-          }
-        })
-      });
+      try {
+        const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+        const res = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: `Upload document for review: ${file.name}`,
+            content: encodedContent,
+            committer: {
+              name: newDoc.author,
+              email: `${newDoc.author.toLowerCase()}@appsquadz.com`
+            }
+          })
+        });
 
-      if (!res.ok) {
-        const result = await res.json();
-        console.error('GitHub Error:', result);
-        alert('Failed to upload to GitHub');
+        if (!res.ok) {
+          const error = await res.json();
+          console.error('GitHub upload failed:', error);
+          alert('❌ Failed to upload document to GitHub');
+          return;
+        }
+
+        const updatedDocs = [newDoc, ...documents];
+        setDocuments(updatedDocs);
+        localStorage.setItem('docs', JSON.stringify(updatedDocs));
+        alert('✅ Document uploaded and sent for review');
+      } catch (err) {
+        console.error('❌ Upload error:', err);
+        alert('Upload failed');
       }
     };
+
     reader.readAsText(file);
   };
 

@@ -27,43 +27,33 @@ export default function ManagerDashboard() {
     try {
       const repo = 'kuldeepyadav7664/docusaurus';
       const path = `docs/documents/${doc.title}.md`;
-      const token = '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';
-      const content = btoa(doc.content);
+      const token = process.env.VITE_GITHUB_TOKEN;
+      const content = btoa(unescape(encodeURIComponent(doc.content)));
+
       const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-      // Check if file exists to get its SHA for update
-      const existingRes = await fetch(url, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const existingData = await existingRes.json();
-
-      const body = {
-        message: `Approved: ${doc.title}`,
-        content,
-        committer: {
-          name: "Manager",
-          email: "manager@appsquadz.com"
-        },
-        ...(existingData.sha && { sha: existingData.sha })
-      };
-
-      const res = await fetch(url, {
+      const response = await fetch(url, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          message: `Manager approved ${doc.title}`,
+          content,
+          committer: {
+            name: "Manager",
+            email: "manager@appsquadz.com"
+          }
+        })
       });
 
-      const result = await res.json();
-      if (res.ok) {
-        console.log("✅ Document committed to GitHub");
-      } else {
-        console.error("❌ Commit error:", result.message);
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('GitHub Push Error:', error);
+        alert('Failed to push approved document to GitHub');
       }
     } catch (err) {
-      console.error("❌ GitHub commit error:", err);
+      console.error('Sync error:', err);
     }
   };
 
