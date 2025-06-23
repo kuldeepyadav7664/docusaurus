@@ -41,7 +41,7 @@ export default function AuthorDashboard() {
     if (!file) return alert('Please select a Markdown (.md) file');
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const content = e.target.result;
 
       if (!file.name.endsWith('.md')) {
@@ -65,6 +65,35 @@ export default function AuthorDashboard() {
       setDocuments(updatedDocs);
       localStorage.setItem('docs', JSON.stringify(updatedDocs));
       alert('Document uploaded and sent for review');
+
+      // Push to GitHub pending-documents
+      const repo = 'kuldeepyadav7664/docusaurus';
+      const path = `pending-documents/${newDoc.title}.md`;
+      const token = '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';
+      const encodedContent = btoa(unescape(encodeURIComponent(content)));
+      const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+      const res = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: `Author uploaded ${newDoc.title}`,
+          content: encodedContent,
+          committer: {
+            name: "Author",
+            email: "author@appsquadz.com"
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const result = await res.json();
+        console.error('GitHub Error:', result);
+        alert('Failed to upload to GitHub');
+      }
     };
     reader.readAsText(file);
   };
