@@ -1,5 +1,6 @@
 export default {
   "__comp---site-src-pages-author-js-9-d-0-fac": [() => import(/* webpackChunkName: "__comp---site-src-pages-author-js-9-d-0-fac" */ "@site/src/pages/author.js"), "@site/src/pages/author.js", require.resolveWeak("@site/src/pages/author.js")],
+  "__comp---site-src-pages-author-new-js-0-e-7-4c1": [() => import(/* webpackChunkName: "__comp---site-src-pages-author-new-js-0-e-7-4c1" */ "@site/src/pages/author_new.js"), "@site/src/pages/author_new.js", require.resolveWeak("@site/src/pages/author_new.js")],
   "__comp---site-src-pages-index-jsc-4-f-f99": [() => import(/* webpackChunkName: "__comp---site-src-pages-index-jsc-4-f-f99" */ "@site/src/pages/index.js"), "@site/src/pages/index.js", require.resolveWeak("@site/src/pages/index.js")],
   "__comp---site-src-pages-login-js-380-710": [() => import(/* webpackChunkName: "__comp---site-src-pages-login-js-380-710" */ "@site/src/pages/login.js"), "@site/src/pages/login.js", require.resolveWeak("@site/src/pages/login.js")],
   "__comp---site-src-pages-manager-jsa-35-9e5": [() => import(/* webpackChunkName: "__comp---site-src-pages-manager-jsa-35-9e5" */ "@site/src/pages/manager.js"), "@site/src/pages/manager.js", require.resolveWeak("@site/src/pages/manager.js")],

@@ -28,9 +28,9 @@ export default {
     },
     "experimental_router": "browser"
   },
-  "url": "https://your-docusaurus-site.example.com",
+  "url": "https://kuldeepyadav7664.github.io",
   "baseUrl": "/",
-  "organizationName": "facebook",
+  "organizationName": "kuldeepyadav7664",
   "projectName": "docusaurus",
   "onBrokenLinks": "throw",
   "onBrokenMarkdownLinks": "warn",
@@ -47,8 +47,13 @@ export default {
       "classic",
       {
         "docs": {
-          "sidebarPath": "./sidebars.js",
-          "editUrl": "https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/"
+          "path": "docs",
+          "routeBasePath": "docs",
+          "sidebarPath": "/home/kuldeep7664/kd/docusaurus/sidebars.js",
+          "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/",
+          "includeCurrentVersion": true,
+          "showLastUpdateTime": true,
+          "showLastUpdateAuthor": true
         },
         "blog": {
           "showReadingTime": true,
@@ -376,7 +381,7 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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"
+    "githubToken": "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"
   },
   "baseUrlIssueBanner": true,
   "onBrokenAnchors": "warn",

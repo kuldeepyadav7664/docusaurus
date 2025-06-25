@@ -1,5 +1,5 @@
-// @ts-check
-import {themes as prismThemes} from 'prism-react-renderer';
+// docusaurus.config.js
+import { themes as prismThemes } from 'prism-react-renderer';
 import dotenv from 'dotenv';
 dotenv.config(); // Load variables from .env
 
@@ -13,10 +13,10 @@ const config = {
     v4: true,
   },
 
-  url: 'https://your-docusaurus-site.example.com',
+  url: 'https://kuldeepyadav7664.github.io',
   baseUrl: '/',
 
-  organizationName: 'facebook',
+  organizationName: 'kuldeepyadav7664',
   projectName: 'docusaurus',
 
   onBrokenLinks: 'throw',
@@ -33,9 +33,13 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          sidebarPath: './sidebars.js',
-          editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          path: 'docs',
+          routeBasePath: 'docs',
+          sidebarPath: require.resolve('./sidebars.js'),
+          editUrl: 'https://github.com/kuldeepyadav7664/docusaurus/edit/main/',
+          includeCurrentVersion: true,
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: true,
         },
         blog: {
           showReadingTime: true,
@@ -73,7 +77,7 @@ const config = {
             position: 'left',
             label: 'Documentation',
           },
-          {to: '/blog', label: 'Blog', position: 'left'},
+          { to: '/blog', label: 'Blog', position: 'left' },
           {
             href: 'https://github.com/facebook/docusaurus',
             label: 'GitHub',

@@ -49,6 +49,13 @@
     },
     "config": "config---author-5-e-9-132"
   },
+  "/author_new-213": {
+    "__comp": "__comp---site-src-pages-author-new-js-0-e-7-4c1",
+    "__context": {
+      "plugin": "plugin---authora-74-095"
+    },
+    "config": "config---author-5-e-9-132"
+  },
   "/blog-b2f": {
     "__comp": "__comp---theme-blog-list-pagea-6-a-7ba",
     "__context": {
@@ -270,20 +277,20 @@
     },
     "content": "content---markdown-page-393-028"
   },
-  "/docs-393": {
+  "/docs-729": {
     "__comp": "__comp---theme-docs-root-5-e-9-0b6",
     "__context": {
       "plugin": "plugin---docsaba-d7c"
     }
   },
-  "/docs-97a": {
+  "/docs-12e": {
     "__comp": "__comp---theme-doc-version-roota-7-b-5de",
     "__props": "__props---docs-005-788"
   },
-  "/docs-7fc": {
+  "/docs-f26": {
     "__comp": "__comp---theme-doc-roota-94-67a"
   },
-  "/docs/intro-61d": {
+  "/docs/intro-5ac": {
     "__comp": "__comp---theme-doc-item-178-a40",
     "content": "content---docs-intro-0-e-3-be1"
   },

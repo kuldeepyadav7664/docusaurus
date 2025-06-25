@@ -1,11 +1,11 @@
-// /src/pages/author.js
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './authorDashboard.module.css';
 import { useHistory } from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+import BrowserOnly from '@docusaurus/BrowserOnly';
 
-export default function AuthorDashboard() {
+function AuthorDashboard() {
   const history = useHistory();
   const { siteConfig } = useDocusaurusContext();
   const githubToken = siteConfig.customFields.githubToken;
@@ -187,5 +187,14 @@ export default function AuthorDashboard() {
         </section>
       </main>
     </Layout>
+  );
+}
+
+// ✅ EXPORT only the wrapper using BrowserOnly
+export default function AuthorPageWrapper() {
+  return (
+    <BrowserOnly fallback={<div>Loading Author Dashboard...</div>}>
+      {() => <AuthorDashboard />}
+    </BrowserOnly>
   );
 }

@@ -43,6 +43,11 @@ export default [
     exact: true
   },
   {
+    path: '/author_new',
+    component: ComponentCreator('/author_new', '213'),
+    exact: true
+  },
+  {
     path: '/blog',
     component: ComponentCreator('/blog', 'b2f'),
     exact: true
@@ -129,19 +134,19 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '393'),
+    component: ComponentCreator('/docs', '729'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '97a'),
+        component: ComponentCreator('/docs', '12e'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', '7fc'),
+            component: ComponentCreator('/docs', 'f26'),
             routes: [
               {
                 path: '/docs/intro',
-                component: ComponentCreator('/docs/intro', '61d'),
+                component: ComponentCreator('/docs/intro', '5ac'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               }
