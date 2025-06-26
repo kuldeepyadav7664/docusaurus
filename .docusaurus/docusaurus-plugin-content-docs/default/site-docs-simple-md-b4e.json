@@ -1,0 +1,22 @@
+{
+  "id": "simple",
+  "title": "simple",
+  "description": "This text is really important.",
+  "source": "@site/docs/simple.md",
+  "sourceDirName": ".",
+  "slug": "/simple",
+  "permalink": "/docs/simple",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/docs/simple.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "AppSquadz - Advanced AWS Partner",
+    "permalink": "/docs/intro"
+  }
+}

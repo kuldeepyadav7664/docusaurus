@@ -1,0 +1,25 @@
+{
+  "id": "documents/sample2",
+  "title": "Sample 2",
+  "description": "Paragraphs are separated by a blank line.",
+  "source": "@site/docs/documents/sample2.md",
+  "sourceDirName": "documents",
+  "slug": "/documents/sample2",
+  "permalink": "/docs/documents/sample2",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/docs/documents/sample2.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": null,
+  "lastUpdatedAt": null,
+  "frontMatter": {
+    "id": "sample2",
+    "title": "Sample 2"
+  },
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "Sample",
+    "permalink": "/docs/documents/sample"
+  }
+}

@@ -14,6 +14,11 @@
               "id": "intro",
               "path": "/docs/intro",
               "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "simple",
+              "path": "/docs/simple",
+              "sidebar": "tutorialSidebar"
             }
           ],
           "draftIds": [],
