@@ -11,8 +11,23 @@
           "mainDocId": "intro",
           "docs": [
             {
+              "id": "documents/kd",
+              "path": "/docs/documents/kd",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "documents/simple",
+              "path": "/docs/documents/simple",
+              "sidebar": "tutorialSidebar"
+            },
+            {
               "id": "intro",
               "path": "/docs/intro",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "kuldeep",
+              "path": "/docs/kuldeep",
               "sidebar": "tutorialSidebar"
             },
             {

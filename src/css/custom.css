@@ -3,7 +3,7 @@
  * bundles Infima by default. Infima is a CSS framework designed to
  * work well for content-centric websites.
  */
-
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
 /* You can override the default Infima variables here. */
 :root {
   --ifm-color-primary: #2e8555;
@@ -28,3 +28,42 @@
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+.header-github-link {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  margin-left: 10px;
+  background: url("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png") no-repeat center;
+  background-size: contain;
+  border-radius: 6px;
+  padding: 4px;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+}
+
+.header-github-link:hover {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+}
+
+html[data-theme='dark'] .header-github-link:hover {
+  background-color: #333;
+}
+
+.footer a i {
+  color: #f4f5f5; /* Change to your preferred color */
+  transition: color 0.3s ease;
+}
+
+.footer a:hover i {
+  color: #4592ef; /* Optional hover color */
+}
+
+.footer {
+  color: #e0f7ff; /* Light blue or your preferred color */
+}
+
+.footer a {
+  color: #d2dde3; /* Link color */
+  transition: color 0.3s ease;
+}
+

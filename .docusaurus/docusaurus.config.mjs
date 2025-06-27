@@ -96,9 +96,10 @@ export default {
           "position": "left"
         },
         {
-          "href": "https://github.com/facebook/docusaurus",
-          "label": "GitHub",
-          "position": "right"
+          "href": "https://github.com/kuldeepyadav7664/docusaurus",
+          "position": "right",
+          "className": "header-github-link",
+          "aria-label": "GitHub repository"
         },
         {
           "to": "/login",
@@ -112,11 +113,10 @@ export default {
       "style": "dark",
       "links": [
         {
-          "title": "Docs",
+          "title": "About Appsquadz",
           "items": [
             {
-              "label": "Tutorial",
-              "to": "/docs/intro"
+              "html": "<a href=\"/docs/intro\">\n               <i class=\"fas fa-info-circle fa-lg\" style=\"margin-right: 8px;\"></i>Introduction\n             </a>"
             }
           ]
         },
@@ -124,16 +124,13 @@ export default {
           "title": "Community",
           "items": [
             {
-              "label": "LinkedIn",
-              "href": "https://www.linkedin.com/company/appsquadz"
+              "html": "<a href=\"https://www.linkedin.com/company/appsquadz\" target=\"_blank\" rel=\"noopener noreferrer\">\n               <i class=\"fab fa-linkedin fa-lg\" style=\"margin-right: 8px;\"></i>LinkedIn\n             </a>"
             },
             {
-              "label": "Facebook",
-              "href": "https://www.facebook.com/appsquadz/"
+              "html": "<a href=\"https://www.facebook.com/appsquadz/\" target=\"_blank\" rel=\"noopener noreferrer\">\n               <i class=\"fab fa-facebook fa-lg\" style=\"margin-right: 8px;\"></i>Facebook\n             </a>"
             },
             {
-              "label": "X",
-              "href": "https://x.com/appsquadz"
+              "html": "<a href=\"https://x.com/appsquadz\" target=\"_blank\" rel=\"noopener noreferrer\">\n               <i class=\"fab fa-x-twitter fa-lg\" style=\"margin-right: 8px;\"></i>X\n             </a>"
             }
           ]
         },
@@ -141,12 +138,10 @@ export default {
           "title": "More",
           "items": [
             {
-              "label": "Blog",
-              "to": "/blog"
+              "html": "<a href=\"/blog\">\n               <i class=\"fas fa-blog fa-lg\" style=\"margin-right: 8px;\"></i>Blog\n             </a>"
             },
             {
-              "label": "GitHub",
-              "href": "https://github.com/facebook/docusaurus"
+              "html": "<a href=\"https://github.com/kuldeepyadav7664/docusaurus\" target=\"_blank\" rel=\"noopener noreferrer\">\n               <i class=\"fab fa-github fa-lg\" style=\"margin-right: 8px;\"></i>GitHub\n             </a>"
             }
           ]
         }
@@ -381,7 +376,11 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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"
+    "githubToken": "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",
+    "authorEmail": "author@appsquadz.com,author1@appsquadz.com",
+    "authorPassword": "author123,author1234",
+    "managerEmail": "manager@appsquadz.com",
+    "managerPassword": "manager123"
   },
   "baseUrlIssueBanner": true,
   "onBrokenAnchors": "warn",

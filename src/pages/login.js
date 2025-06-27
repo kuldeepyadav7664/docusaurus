@@ -1,8 +1,8 @@
-// /src/pages/login.js
 import React, { useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './login.module.css';
 import { useHistory } from '@docusaurus/router';
+import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
 export default function Login() {
   const [role, setRole] = useState('Author');
@@ -10,10 +10,21 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const history = useHistory();
 
+  const { siteConfig } = useDocusaurusContext();
+  const { customFields } = siteConfig;
+
   const handleLogin = (e) => {
     e.preventDefault();
-    if ((role === 'Author' && email === 'author@appsquadz.com' && password === 'author123') ||
-        (role === 'Manager' && email === 'manager@appsquadz.com' && password === 'manager123')) {
+
+    const authorEmail = customFields.authorEmail;
+    const authorPass = customFields.authorPassword;
+    const managerEmail = customFields.managerEmail;
+    const managerPass = customFields.managerPassword;
+
+    const isAuthor = role === 'Author' && email === authorEmail && password === authorPass;
+    const isManager = role === 'Manager' && email === managerEmail && password === managerPass;
+
+    if (isAuthor || isManager) {
       localStorage.setItem('role', role.toLowerCase());
       history.push(`/${role.toLowerCase()}`);
     } else {

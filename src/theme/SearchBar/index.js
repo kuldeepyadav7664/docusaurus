@@ -13,8 +13,14 @@ export default function CustomSearchModal() {
   const history = useHistory();
 
   const GITHUB_API_URLS = [
-    'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs',
-    'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs/documents'
+    {
+      url: 'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs',
+      prefix: '/docs',
+    },
+    {
+      url: 'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs/documents',
+      prefix: '/docs/documents',
+    },
   ];
 
   useEffect(() => {
@@ -22,20 +28,25 @@ export default function CustomSearchModal() {
       try {
         let allFiles = [];
 
-        for (const url of GITHUB_API_URLS) {
+        for (const { url, prefix } of GITHUB_API_URLS) {
           const response = await fetch(url);
           const data = await response.json();
 
           if (Array.isArray(data)) {
             const files = data
-              .filter(item => item.type === 'file')
-              .map(item => item.name);
+              .filter((item) => item.type === 'file')
+              .map((item) => ({
+                name: item.name,
+                fullPath: `${prefix}/${item.name
+                  .toLowerCase()
+                  .replace(/\s+/g, '-')
+                  .replace(/\.mdx?$/, '')}`,
+              }));
             allFiles = [...allFiles, ...files];
           }
         }
 
-        const uniqueFiles = [...new Set(allFiles)];
-        setDocList(uniqueFiles);
+        setDocList(allFiles);
       } catch (err) {
         console.error('GitHub fetch error:', err);
       }
@@ -50,8 +61,8 @@ export default function CustomSearchModal() {
       return;
     }
 
-    const match = docList.filter(doc =>
-      doc.toLowerCase().includes(query.toLowerCase())
+    const match = docList.filter((doc) =>
+      doc.name.toLowerCase().includes(query.toLowerCase())
     );
     setSuggestions(match);
     setActiveIndex(0);
@@ -72,13 +83,18 @@ export default function CustomSearchModal() {
   }, []);
 
   const handleSelect = (doc) => {
+    if (!doc || !doc.fullPath) {
+      setOpen(false);
+      setQuery('');
+      setSuggestions([]);
+      history.push('/404'); // Or alert('No document found');
+      return;
+    }
+
     setOpen(false);
     setQuery('');
     setSuggestions([]);
-
-    // Navigate to corresponding route
-    const slug = doc.toLowerCase().replace(/\s+/g, '-').replace(/\.mdx?$/, '');
-    history.push(`/docs/documents/${slug}`);
+    history.push(doc.fullPath);
   };
 
   const handleKeyDown = (e) => {
@@ -86,7 +102,7 @@ export default function CustomSearchModal() {
       setActiveIndex((prev) => (prev + 1) % suggestions.length);
     } else if (e.key === 'ArrowUp') {
       setActiveIndex((prev) => (prev - 1 + suggestions.length) % suggestions.length);
-    } else if (e.key === 'Enter' && activeIndex >= 0) {
+    } else if (e.key === 'Enter') {
       handleSelect(suggestions[activeIndex]);
     }
   };
@@ -95,7 +111,7 @@ export default function CustomSearchModal() {
     <>
       <div className={styles.searchActivatorBox} onClick={() => setOpen(true)}>
         <Search className={styles.activatorIcon} />
-        <span className={styles.placeholderText}>Search documents...</span>
+        <span className={styles.placeholderText}>Search</span>
         <kbd className={styles.shortcutKey}>Ctrl + K</kbd>
       </div>
 
@@ -113,7 +129,7 @@ export default function CustomSearchModal() {
               maxWidth: '90%',
               background: 'var(--ifm-background-color)',
               borderRadius: '12px',
-              overflow: 'hidden'
+              overflow: 'hidden',
             }}
           >
             <input
@@ -132,13 +148,15 @@ export default function CustomSearchModal() {
                   <div className={styles.suggestionSectionTitle}>Documents</div>
                   {suggestions.map((doc, i) => (
                     <div
-                      key={doc}
-                      className={`${styles.suggestionItem} ${i === activeIndex ? styles.active : ''}`}
+                      key={doc.fullPath}
+                      className={`${styles.suggestionItem} ${
+                        i === activeIndex ? styles.active : ''
+                      }`}
                       onClick={() => handleSelect(doc)}
                       tabIndex={0}
                     >
                       <FileText className={styles.suggestionIcon} />
-                      {doc.replace(/\.mdx?$/, '')}
+                      {doc.name.replace(/\.mdx?$/, '')}
                     </div>
                   ))}
                 </>
@@ -147,17 +165,23 @@ export default function CustomSearchModal() {
               )}
             </div>
 
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              padding: '8px 12px',
-              fontSize: '12px',
-              color: 'var(--ifm-color-content-secondary)',
-              background: 'var(--ifm-background-surface-color)',
-              borderTop: '1px solid var(--ifm-color-emphasis-200)'
-            }}>
-              <span><kbd>↑</kbd> <kbd>↓</kbd> to navigate</span>
-              <span><kbd>ESC</kbd> to close</span>
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '8px 12px',
+                fontSize: '12px',
+                color: 'var(--ifm-color-content-secondary)',
+                background: 'var(--ifm-background-surface-color)',
+                borderTop: '1px solid var(--ifm-color-emphasis-200)',
+              }}
+            >
+              <span>
+                <kbd>↑</kbd> <kbd>↓</kbd> to navigate
+              </span>
+              <span>
+                <kbd>ESC</kbd> to close
+              </span>
             </div>
           </div>
         </div>

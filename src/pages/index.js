@@ -64,6 +64,44 @@ export default function Home() {
           ))}
         </section>
 
+        <section className={styles.devopsAnimatedSection}>
+          <h2 className={styles.devopsTitle}>DevOps Automation with AppSquadz</h2>
+          <p className={styles.devopsSubtitle}>
+            AppSquadz - Advanced AWS Partner.
+          </p>
+          <div className={styles.iconMarquee}>
+            <div className={styles.marqueeContent}>
+              <span>🗂️ Amazon S3</span>
+              <span>🌐 Amazon Translate</span>
+              <span>🎙️ Amazon Transcribe</span>
+              <span>🛡️ AWS WAF</span>
+              <span>📈 Amazon CloudWatch</span>
+              <span>💻 Amazon EC2</span>
+              <span>📡 AWS MediaLive</span>
+              <span>🎞️ MediaConvert</span>
+              <span>🎭 MediaTailor</span>
+              <span>📦 MediaPackage</span>
+              <span>📺 Amazon IVS</span>
+              <span>🚀 CloudFront</span>
+            </div>
+            <div className={styles.marqueeContent}>
+              <span>        </span>
+              <span>🗂️ Amazon S3</span>
+              <span>🌐 Amazon Translate</span>
+              <span>🎙️ Amazon Transcribe</span>
+              <span>🛡️ AWS WAF</span>
+              <span>📈 Amazon CloudWatch</span>
+              <span>💻 Amazon EC2</span>
+              <span>📡 AWS MediaLive</span>
+              <span>🎞️ MediaConvert</span>
+              <span>🎭 MediaTailor</span>
+              <span>📦 MediaPackage</span>
+              <span>📺 Amazon IVS</span>
+              <span>🚀 CloudFront</span>
+            </div>
+          </div>
+        </section>
+
         <footer className={styles.footer}>
           <img src="/img/logo.svg" alt="AppSquadz" className={styles.logo} />
           <p>© {new Date().getFullYear()} AppSquadz Technologies. All rights reserved.</p>

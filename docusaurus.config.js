@@ -1,6 +1,7 @@
 // docusaurus.config.js
 import { themes as prismThemes } from 'prism-react-renderer';
 import dotenv from 'dotenv';
+
 dotenv.config(); // Load variables from .env
 
 /** @type {import('@docusaurus/types').Config} */
@@ -79,9 +80,10 @@ const config = {
           },
           { to: '/blog', label: 'Blog', position: 'left' },
           {
-            href: 'https://github.com/facebook/docusaurus',
-            label: 'GitHub',
+            href: 'https://github.com/kuldeepyadav7664/docusaurus',
             position: 'right',
+            className: 'header-github-link',
+            'aria-label': 'GitHub repository',
           },
           {
             to: '/login',
@@ -94,11 +96,12 @@ const config = {
         style: 'dark',
         links: [
           {
-            title: 'Docs',
+            title: 'About Appsquadz',
             items: [
               {
-                label: 'Tutorial',
-                to: '/docs/intro',
+                html: `<a href="/docs/intro">
+               <i class="fas fa-info-circle fa-lg" style="margin-right: 8px;"></i>Introduction
+             </a>`,
               },
             ],
           },
@@ -106,16 +109,19 @@ const config = {
             title: 'Community',
             items: [
               {
-                label: 'LinkedIn',
-                href: 'https://www.linkedin.com/company/appsquadz',
+                html: `<a href="https://www.linkedin.com/company/appsquadz" target="_blank" rel="noopener noreferrer">
+               <i class="fab fa-linkedin fa-lg" style="margin-right: 8px;"></i>LinkedIn
+             </a>`,
               },
               {
-                label: 'Facebook',
-                href: 'https://www.facebook.com/appsquadz/',
+                html: `<a href="https://www.facebook.com/appsquadz/" target="_blank" rel="noopener noreferrer">
+               <i class="fab fa-facebook fa-lg" style="margin-right: 8px;"></i>Facebook
+             </a>`,
               },
               {
-                label: 'X',
-                href: 'https://x.com/appsquadz',
+                html: `<a href="https://x.com/appsquadz" target="_blank" rel="noopener noreferrer">
+               <i class="fab fa-x-twitter fa-lg" style="margin-right: 8px;"></i>X
+             </a>`,
               },
             ],
           },
@@ -123,12 +129,14 @@ const config = {
             title: 'More',
             items: [
               {
-                label: 'Blog',
-                to: '/blog',
+                html: `<a href="/blog">
+               <i class="fas fa-blog fa-lg" style="margin-right: 8px;"></i>Blog
+             </a>`,
               },
               {
-                label: 'GitHub',
-                href: 'https://github.com/facebook/docusaurus',
+                html: `<a href="https://github.com/kuldeepyadav7664/docusaurus" target="_blank" rel="noopener noreferrer">
+               <i class="fab fa-github fa-lg" style="margin-right: 8px;"></i>GitHub
+             </a>`,
               },
             ],
           },
@@ -143,6 +151,10 @@ const config = {
 
   customFields: {
     githubToken: process.env.VITE_GITHUB_TOKEN,
+    authorEmail: process.env.VITE_AUTHOR_EMAIL,
+    authorPassword: process.env.VITE_AUTHOR_PASSWORD,
+    managerEmail: process.env.VITE_MANAGER_EMAIL,
+    managerPassword: process.env.VITE_MANAGER_PASSWORD,
   },
 };
 

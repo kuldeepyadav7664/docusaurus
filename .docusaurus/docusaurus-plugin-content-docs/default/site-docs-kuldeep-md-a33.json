@@ -1,0 +1,26 @@
+{
+  "id": "kuldeep",
+  "title": "kuldeep",
+  "description": "This text is really important.",
+  "source": "@site/docs/kuldeep.md",
+  "sourceDirName": ".",
+  "slug": "/kuldeep",
+  "permalink": "/docs/kuldeep",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/docs/kuldeep.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "simple",
+    "permalink": "/docs/documents/simple"
+  },
+  "next": {
+    "title": "simple",
+    "permalink": "/docs/simple"
+  }
+}
