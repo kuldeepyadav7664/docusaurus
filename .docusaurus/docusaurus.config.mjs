@@ -376,7 +376,7 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
+    "githubToken": "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",
     "authorEmail": "author@appsquadz.com",
     "authorPassword": "author123",
     "managerEmail": "manager@appsquadz.com",
