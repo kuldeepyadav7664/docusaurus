@@ -1,51 +1,32 @@
-name: Deploy Docusaurus to EC2
+- name: Deploy to EC2 via SSH
+  uses: appleboy/ssh-action@master
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ${{ secrets.EC2_USERNAME }}
+    key: ${{ secrets.EC2_SSH_KEY }}
+    script: |
+      cd /home/ubuntu/docusaurus
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/documents/**'  # Only trigger on approved doc changes
+      echo "🔧 Setting up Git credentials..."
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "actions@github.com"
+      git remote set-url origin https://kuldeepyadav7664:${{ secrets.PERSONAL_GH_TOKEN }}@github.com/kuldeepyadav7664/docusaurus.git
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
+      echo "🔄 Pulling latest changes..."
+      git fetch origin main
+      git reset --hard origin/main
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      echo "📦 Installing dependencies..."
+      npm install
 
-      - name: Deploy to EC2 via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            echo "📁 Changing to project directory..."
-            cd /home/ubuntu/docusaurus
+      echo "🏗️ Building site..."
+      npm run build
 
-            echo "🔧 Configuring Git credentials..."
-            git config --global user.name "GitHub Actions Bot"
-            git config --global user.email "actions@github.com"
-            git remote set-url origin https://kuldeepyadav7664:${{ secrets.PERSONAL_GH_TOKEN }}@github.com/kuldeepyadav7664/docusaurus.git
+      echo "🚀 Restarting PM2..."
+      if pm2 list | grep -q docusaurus; then
+        pm2 restart docusaurus
+      else
+        pm2 start npx --name docusaurus -- serve -s build -l 3000
+      fi
 
-            echo "🔄 Pulling latest changes..."
-            git reset --hard
-            git pull origin main
-
-            echo "📦 Installing dependencies..."
-            npm install
-
-            echo "🏗️ Building Docusaurus site..."
-            npm run build
-
-            echo "🚀 Restarting Docusaurus with PM2..."
-            if pm2 list | grep -q docusaurus; then
-              pm2 restart docusaurus
-            else
-              pm2 start npx --name docusaurus -- serve -s build -l 3000
-              pm2 save
-            fi
-
-            echo "✅ Deployment completed!"
+      echo "✅ Deployment complete."
