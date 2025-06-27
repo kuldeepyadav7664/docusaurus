@@ -1,4 +1,3 @@
-// /src/pages/manager.js
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './managerDashboard.module.css';
@@ -28,11 +27,9 @@ export default function ManagerDashboard() {
           const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
             headers: { Authorization: `Bearer ${githubToken}` }
           });
-
           if (res.status === 404) return [];
 
           const files = await res.json();
-
           return Promise.all(
             files.filter(f => f.name.endsWith('.md')).map(async (file) => {
               const res = await fetch(file.download_url);
@@ -80,7 +77,6 @@ export default function ManagerDashboard() {
     const repo = 'kuldeepyadav7664/docusaurus';
     const githubToken = siteConfig.customFields.githubToken;
     const url = `https://api.github.com/repos/${repo}/contents/pending-documents/${filename}`;
-
     try {
       await fetch(url, {
         method: 'DELETE',
@@ -91,10 +87,7 @@ export default function ManagerDashboard() {
         body: JSON.stringify({
           message: `Remove ${filename} after review`,
           sha: sha,
-          committer: {
-            name: "Manager",
-            email: "manager@appsquadz.com"
-          }
+          committer: { name: "Manager", email: "manager@appsquadz.com" }
         })
       });
     } catch (err) {
@@ -105,12 +98,28 @@ export default function ManagerDashboard() {
   const saveApprovedToGitHub = async (doc) => {
     try {
       const repo = 'kuldeepyadav7664/docusaurus';
-      const path = `docs/documents/${doc.title}.md`;
       const githubToken = siteConfig.customFields.githubToken;
+      const path = `docs/documents/${doc.title}.md`;
+      const getUrl = `https://api.github.com/repos/${repo}/contents/${path}`;
       const content = btoa(unescape(encodeURIComponent(doc.content)));
 
-      const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-      const response = await fetch(url, {
+      let existingSha = null;
+
+      const checkRes = await fetch(getUrl, {
+        headers: { Authorization: `Bearer ${githubToken}` }
+      });
+
+      if (checkRes.status === 200) {
+        const existing = await checkRes.json();
+        existingSha = existing.sha;
+
+        const confirmOverwrite = window.confirm(
+          `A file named "${doc.title}.md" already exists. Do you want to overwrite it?`
+        );
+        if (!confirmOverwrite) return;
+      }
+
+      const pushRes = await fetch(getUrl, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${githubToken}`,
@@ -119,17 +128,15 @@ export default function ManagerDashboard() {
         body: JSON.stringify({
           message: `Manager approved ${doc.title}`,
           content,
-          committer: {
-            name: "Manager",
-            email: "manager@appsquadz.com"
-          }
+          sha: existingSha || undefined,
+          committer: { name: "Manager", email: "manager@appsquadz.com" }
         })
       });
 
-      if (!response.ok) {
-        const error = await response.json();
+      if (!pushRes.ok) {
+        const error = await pushRes.json();
         console.error('GitHub Push Error:', error);
-        alert('Failed to push approved document to GitHub');
+        alert('❌ Failed to push approved document to GitHub');
         return;
       }
 
@@ -145,10 +152,12 @@ export default function ManagerDashboard() {
     doc.status = 'Approved';
     doc.reviewComment = comment;
     doc.reviewedAt = new Date().toLocaleDateString();
+
     await saveApprovedToGitHub(doc);
 
     const remainingDocs = updatedDocs.filter((_, i) => i !== index);
     const newDocs = [...remainingDocs, doc];
+
     setDocuments(newDocs);
     localStorage.setItem('docs', JSON.stringify(newDocs));
     window.dispatchEvent(new Event('storage'));
@@ -160,20 +169,19 @@ export default function ManagerDashboard() {
     doc.status = 'Rejected';
     doc.reviewComment = comment;
     doc.reviewedAt = new Date().toLocaleDateString();
+
     await deleteFromPending(doc.filename, doc.sha);
 
     const remainingDocs = updatedDocs.filter((_, i) => i !== index);
     const newDocs = [...remainingDocs, doc];
+
     setDocuments(newDocs);
     localStorage.setItem('docs', JSON.stringify(newDocs));
     window.dispatchEvent(new Event('storage'));
   };
 
-  const filteredDocs =
-    filter === 'All' ? documents : documents.filter((doc) => doc.status === filter);
-
-  const getCount = (status) =>
-    documents.filter((doc) => doc.status === status).length;
+  const filteredDocs = filter === 'All' ? documents : documents.filter((doc) => doc.status === filter);
+  const getCount = (status) => documents.filter((doc) => doc.status === status).length;
 
   const handleLogout = () => {
     localStorage.removeItem('role');
@@ -233,7 +241,8 @@ export default function ManagerDashboard() {
             <button
               key={status}
               className={`${styles.filterBtn} ${filter === status ? styles.active : ''}`}
-              onClick={() => setFilter(status)}>
+              onClick={() => setFilter(status)}
+            >
               {status} ({status === 'All' ? documents.length : getCount(status)})
             </button>
           ))}
@@ -252,24 +261,17 @@ export default function ManagerDashboard() {
                 <div className={styles.docMeta}>
                   Author: {doc.author} | Uploaded: {doc.uploadedAt} {doc.reviewedAt ? `| Reviewed: ${doc.reviewedAt}` : ''}
                 </div>
-
                 <div className={styles.actionButtons}>
-                  <button
-                    className={styles.approveBtn}
-                    onClick={() => toggleView(doc.id)}>
+                  <button className={styles.approveBtn} onClick={() => toggleView(doc.id)}>
                     {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
                   </button>
-                  <button
-                    className={styles.rejectBtn}
-                    onClick={() => handleDownload(`${doc.title}.md`, doc.content)}>
+                  <button className={styles.rejectBtn} onClick={() => handleDownload(`${doc.title}.md`, doc.content)}>
                     ⬇️ Download
                   </button>
                 </div>
-
                 {expandedDocId === doc.id && (
                   <pre className={styles.docPreview}>{doc.content}</pre>
                 )}
-
                 {doc.status === 'Pending' && (
                   <>
                     <textarea
@@ -284,12 +286,14 @@ export default function ManagerDashboard() {
                     <div className={styles.actionButtons}>
                       <button
                         className={styles.approveBtn}
-                        onClick={() => handleApprove(index, doc.tempComment || '')}>
+                        onClick={() => handleApprove(index, doc.tempComment || '')}
+                      >
                         ✅ Approve
                       </button>
                       <button
                         className={styles.rejectBtn}
-                        onClick={() => handleReject(index, doc.tempComment || '')}>
+                        onClick={() => handleReject(index, doc.tempComment || '')}
+                      >
                         ❌ Reject
                       </button>
                     </div>

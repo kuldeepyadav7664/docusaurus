@@ -1,0 +1,49 @@
+name: Deploy Docusaurus to EC2
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/documents/**'  # Trigger only when approved docs change
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/docusaurus
+
+            echo "🔧 Configuring Git..."
+            git config --global user.name "GitHub Actions Bot"
+            git config --global user.email "actions@github.com"
+            git remote set-url origin https://kuldeepyadav7664:${{ secrets.PERSONAL_GH_TOKEN }}@github.com/kuldeepyadav7664/docusaurus.git
+
+            echo "🔄 Pulling latest code..."
+            git reset --hard
+            git pull origin main
+
+            echo "📦 Installing dependencies..."
+            npm install
+
+            echo "🏗️ Building site..."
+            npm run build
+
+            echo "🚀 Restarting site..."
+            if pm2 list | grep -q docusaurus; then
+              pm2 restart docusaurus
+            else
+              pm2 start npx --name docusaurus -- serve -s build -l 3000
+            fi
+
+            echo "✅ Deployment complete."

@@ -18,10 +18,56 @@ function AuthorDashboard() {
     const role = localStorage.getItem('role');
     if (role !== 'author') {
       history.push('/login');
+      return;
     }
 
-    const storedDocs = JSON.parse(localStorage.getItem('docs')) || [];
-    setDocuments(storedDocs);
+    const fetchApprovedDocs = async () => {
+      const repo = 'kuldeepyadav7664/docusaurus';
+      const path = 'docs/documents';
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+          headers: {
+            Authorization: `Bearer ${githubToken}`,
+          },
+        });
+
+        if (!res.ok) {
+          console.error('Failed to fetch from GitHub:', await res.text());
+          return;
+        }
+
+        const files = await res.json();
+
+        const approvedDocs = await Promise.all(
+          files
+            .filter((f) => f.name.endsWith('.md'))
+            .map(async (file) => {
+              const contentRes = await fetch(file.download_url);
+              const content = await contentRes.text();
+
+              return {
+                id: file.sha,
+                title: file.name.replace('.md', ''),
+                category: 'uncategorized',
+                status: 'Approved',
+                uploadedAt: '-', // Placeholder
+                reviewedAt: new Date().toLocaleDateString(),
+                reviewComment: 'Approved on GitHub',
+                author: 'Unknown',
+                content,
+              };
+            })
+        );
+
+        setDocuments(approvedDocs);
+        localStorage.setItem('docs', JSON.stringify(approvedDocs));
+      } catch (error) {
+        console.error('GitHub fetch error:', error);
+      }
+    };
+
+    fetchApprovedDocs();
 
     const handleStorage = () => {
       const updatedDocs = JSON.parse(localStorage.getItem('docs')) || [];
@@ -43,7 +89,6 @@ function AuthorDashboard() {
 
   const handleUpload = async () => {
     if (!file) return alert('Please select a Markdown (.md) file');
-
     if (!file.name.endsWith('.md')) {
       alert('Only .md files are allowed');
       return;
@@ -52,7 +97,6 @@ function AuthorDashboard() {
     const reader = new FileReader();
     reader.onload = async (e) => {
       const content = e.target.result;
-
       const newDoc = {
         id: Date.now(),
         title: file.name.replace('.md', ''),
@@ -82,10 +126,15 @@ function AuthorDashboard() {
             content: encodedContent,
             committer: {
               name: newDoc.author,
-              email: `${newDoc.author.toLowerCase()}@appsquadz.com`
-            }
-          })
+              email: `${newDoc.author.toLowerCase()}@appsquadz.com`,
+            },
+          }),
         });
+
+        if (res.status === 422) {
+          alert('❌ File already exists. Please rename your file and try again.');
+          return;
+        }
 
         if (!res.ok) {
           const error = await res.json();
@@ -123,7 +172,9 @@ function AuthorDashboard() {
           <h1 className={styles.heading}>Author Dashboard</h1>
           <button className={styles.uploadBtn} onClick={handleLogout}>Logout</button>
         </div>
-        <p className={styles.subheading}>Welcome back, {localStorage.getItem('username') || 'Kuldeep Yadav'}!</p>
+        <p className={styles.subheading}>
+          Welcome back, {localStorage.getItem('username') || 'Kuldeep Yadav'}!
+        </p>
 
         <div className={styles.statsRow}>
           <div className={styles.statCard}>
@@ -156,7 +207,7 @@ function AuthorDashboard() {
         <section className={styles.documentSection}>
           <h2>My Documents</h2>
           {documents
-            .filter((doc) => doc.author === (localStorage.getItem('username') || 'Unknown'))
+            .filter((doc) => doc.author === (localStorage.getItem('username') || 'Unknown') || doc.status === 'Approved')
             .map((doc) => (
               <div key={doc.id} className={styles.documentCard}>
                 <div className={styles.docHeader}>
@@ -178,7 +229,14 @@ function AuthorDashboard() {
                   {expandedDocId === doc.id ? 'Hide' : 'View'} Document
                 </button>
                 {expandedDocId === doc.id && (
-                  <pre style={{ background: '#01192f', padding: '1rem', borderRadius: '8px', color: '#fff', marginTop: '1rem', overflowX: 'auto' }}>
+                  <pre style={{
+                    background: '#01192f',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    color: '#fff',
+                    marginTop: '1rem',
+                    overflowX: 'auto'
+                  }}>
                     {doc.content}
                   </pre>
                 )}
@@ -190,7 +248,6 @@ function AuthorDashboard() {
   );
 }
 
-// ✅ EXPORT only the wrapper using BrowserOnly
 export default function AuthorPageWrapper() {
   return (
     <BrowserOnly fallback={<div>Loading Author Dashboard...</div>}>

@@ -49,7 +49,7 @@ export default {
         "docs": {
           "path": "docs",
           "routeBasePath": "docs",
-          "sidebarPath": "/home/kuldeep7664/kd/docusaurus/sidebars.js",
+          "sidebarPath": "/home/ubuntu/docusaurus/sidebars.js",
           "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/",
           "includeCurrentVersion": true,
           "showLastUpdateTime": true,
@@ -376,9 +376,9 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
-    "authorEmail": "author@appsquadz.com,author1@appsquadz.com",
-    "authorPassword": "author123,author1234",
+    "githubToken": "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",
+    "authorEmail": "author@appsquadz.com",
+    "authorPassword": "author123",
     "managerEmail": "manager@appsquadz.com",
     "managerPassword": "manager123"
   },

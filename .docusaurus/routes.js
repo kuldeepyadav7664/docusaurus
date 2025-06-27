@@ -134,19 +134,19 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '544'),
+    component: ComponentCreator('/docs', '65f'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '94c'),
+        component: ComponentCreator('/docs', '0a1'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', 'ba1'),
+            component: ComponentCreator('/docs', '681'),
             routes: [
               {
-                path: '/docs/documents/kd',
-                component: ComponentCreator('/docs/documents/kd', '8ef'),
+                path: '/docs/documents/kuldeep',
+                component: ComponentCreator('/docs/documents/kuldeep', '9cb'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
