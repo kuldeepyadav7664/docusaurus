@@ -23,9 +23,9 @@ export default function ManagerDashboard() {
   }, []);
 
   const fetchDocuments = async () => {
-    const fetchFiles = async (path, status) => {
+    const fetchApprovedFiles = async () => {
       try {
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/${path}`, {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/docs/documents`, {
           headers: { Authorization: `Bearer ${githubToken}` },
         });
 
@@ -34,40 +34,75 @@ export default function ManagerDashboard() {
         if (!Array.isArray(files)) return [];
 
         return Promise.all(
-          files.filter(f => f.name.endsWith('.md')).map(async file => {
+          files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
             const res = await fetch(file.download_url);
             const content = await res.text();
             return {
               id: file.sha,
               title: file.name.replace('.md', ''),
-              status,
+              status: 'Approved',
               uploadedAt: '-',
-              reviewedAt: status === 'Approved' ? new Date().toLocaleDateString() : '-',
-              reviewComment: status === 'Approved' ? 'Approved on GitHub' : 'Awaiting review',
+              reviewedAt: new Date().toLocaleDateString(),
+              reviewComment: 'Approved on GitHub',
               author: '-',
               content,
               filename: file.name,
               sha: file.sha,
+              source: 'docs/documents',
             };
           })
         );
       } catch (err) {
-        console.error(`Error fetching ${path}:`, err);
+        console.error(`Error fetching approved documents:`, err);
         return [];
       }
     };
 
-    const [pendingDocs, approvedDocs] = await Promise.all([
-      fetchFiles('pending-documents', 'Pending'),
-      fetchFiles('docs/documents', 'Approved'),
-    ]);
+    const approvedDocs = await fetchApprovedFiles();
+
+    const fetchPendingFiles = async () => {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${repo}/contents/pending-documents`, {
+          headers: { Authorization: `Bearer ${githubToken}` },
+        });
+
+        if (res.status === 404) return [];
+        const files = await res.json();
+        if (!Array.isArray(files)) return [];
+
+        return Promise.all(
+          files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
+            const res = await fetch(file.download_url);
+            const content = await res.text();
+            const isDuplicate = approvedDocs.some(ad => ad.filename === file.name);
+            return {
+              id: file.sha,
+              title: file.name.replace('.md', ''),
+              status: 'Pending',
+              uploadedAt: '-',
+              reviewedAt: '-',
+              reviewComment: 'Awaiting review',
+              author: '-',
+              content,
+              filename: file.name,
+              sha: file.sha,
+              source: 'pending-documents',
+              duplicate: isDuplicate,
+            };
+          })
+        );
+      } catch (err) {
+        console.error(`Error fetching pending documents:`, err);
+        return [];
+      }
+    };
+
+    const pendingDocs = await fetchPendingFiles();
 
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
     const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
-    const docs = [...pendingDocs.filter(pd =>
-      !approvedDocs.find(ad => ad.title === pd.title)
-    ), ...approvedDocs, ...rejectedDocs];
 
+    const docs = [...pendingDocs, ...approvedDocs, ...rejectedDocs];
     setDocuments(docs);
     localStorage.setItem('docs', JSON.stringify(docs));
     window.dispatchEvent(new Event('storage'));
@@ -190,7 +225,14 @@ export default function ManagerDashboard() {
           <h2>Documents</h2>
           {filteredDocs.length === 0 ? <p>No documents found.</p> : filteredDocs.map((doc, index) => (
             <div key={index} className={styles.documentCard}>
-              <div className={styles.docHeader}>{doc.title} {doc.status === 'Pending' && '🟡'}</div>
+              <div className={styles.docHeader}>
+                {doc.title} {doc.status === 'Pending' && '🟡'}
+                {doc.duplicate && doc.status === 'Pending' && (
+                  <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '0.5rem' }}>
+                    ⚠️ Duplicate of approved
+                  </span>
+                )}
+              </div>
               <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
 
               <div className={styles.actionButtons}>
