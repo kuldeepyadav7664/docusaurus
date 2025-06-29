@@ -68,6 +68,8 @@ function AuthorDashboard() {
     const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
     const docs = [...pendingDocs, ...approvedDocs, ...rejectedDocs];
     setDocuments(docs);
+    localStorage.setItem('docs', JSON.stringify(docs));
+    window.dispatchEvent(new Event('storage'));
   };
 
   const handleUpload = async () => {
@@ -139,8 +141,13 @@ function AuthorDashboard() {
   return (
     <Layout title="Author Dashboard">
       <main className={styles.main}>
-        <h1 className={styles.heading}>Author Dashboard</h1>
-        <p className={styles.subheading}>Welcome back, {username}!</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <h1 className={styles.heading}>Author Dashboard</h1>
+            <p className={styles.subheading}>Welcome back, {username}!</p>
+          </div>
+          <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>
+        </div>
 
         <div className={styles.statsRow}>
           <div className={styles.statCard}><div>Total</div><div className={styles.statNumber}>{statusCounts.total}</div></div>
@@ -150,16 +157,16 @@ function AuthorDashboard() {
         </div>
 
         <div className={styles.fileUploadContainer}>
-  <label htmlFor="file-upload" className={styles.fileLabel}>📁 Choose Markdown File</label>
-  <input
-    id="file-upload"
-    type="file"
-    accept=".md"
-    onChange={(e) => setFile(e.target.files[0])}
-    className={styles.customFileInput}
-  />
-  <button className={styles.uploadBtn} onClick={handleUpload}>Upload Document</button>
-</div>
+          <label htmlFor="file-upload" className={styles.fileLabel}>📁 Choose Markdown File</label>
+          <input
+            id="file-upload"
+            type="file"
+            accept=".md"
+            onChange={(e) => setFile(e.target.files[0])}
+            className={styles.customFileInput}
+          />
+          <button className={styles.uploadBtn} onClick={handleUpload}>Upload Document</button>
+        </div>
 
         <section className={styles.documentSection}>
           <h2>My Documents</h2>

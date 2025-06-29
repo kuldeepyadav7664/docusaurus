@@ -6,170 +6,29 @@ nohup: ignoring input
 [INFO] Starting the development server...
 [SUCCESS] Docusaurus website is running at: http://localhost:3000/
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.84s
+[webpackbar] ✔ Client: Compiled successfully in 2.56s
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.58s
+[webpackbar] ✔ Client: Compiled successfully in 1.32s
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 929.58ms
+[webpackbar] ✔ Client: Compiled successfully in 4.49s
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 982.65ms
+[webpackbar] ✔ Client: Compiled successfully in 1.18s
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.15s
+[webpackbar] ✔ Client: Compiled successfully in 976.21ms
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.09s
+[webpackbar] ✔ Client: Compiled successfully in 978.57ms
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.01s
+[webpackbar] ✔ Client: Compiled successfully in 495.50ms
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.55s
+[webpackbar] ✔ Client: Compiled successfully in 777.87ms
 client (webpack 5.99.9) compiled successfully
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 541.73ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.02s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 527.72ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 880.48ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 741.72ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 903.27ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 424.76ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 799.91ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 463.94ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 377.99ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.72s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.13s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled with some errors in 2.20s
-Error: MDX compilation failed for file "/home/ubuntu/docusaurus/docs/documents/markdown-sample.md"
-Cause: Could not parse expression with acorn
-Details:
-{
-  "cause": {
-    "pos": 812,
-    "loc": {
-      "line": 41,
-      "column": 23
-    },
-    "raisedAt": 3
-  },
-  "column": 24,
-  "message": "Could not parse expression with acorn",
-  "line": 41,
-  "name": "41:24",
-  "place": {
-    "line": 41,
-    "column": 24,
-    "offset": 812
-  },
-  "reason": "Could not parse expression with acorn",
-  "ruleId": "acorn",
-  "source": "micromark-extension-mdx-expression",
-  "url": "https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression#could-not-parse-expression-with-acorn"
-}
-client (webpack 5.99.9) compiled with 1 error
-<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/home/ubuntu/docusaurus/node_modules/@docusaurus/mdx-loader/lib/index.js??ruleSet[1].rules[8].use[0]!/home/ubuntu/docusaurus/docs/documents/markdown-sample.md': No serializer registered for VFileMessage
-<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> Error -> VFileMessage
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled with some errors in 3.11s
-Error: MDX compilation failed for file "/home/ubuntu/docusaurus/docs/documents/markdown-sample.md"
-Cause: Could not parse expression with acorn
-Details:
-{
-  "cause": {
-    "pos": 812,
-    "loc": {
-      "line": 41,
-      "column": 23
-    },
-    "raisedAt": 3
-  },
-  "column": 24,
-  "message": "Could not parse expression with acorn",
-  "line": 41,
-  "name": "41:24",
-  "place": {
-    "line": 41,
-    "column": 24,
-    "offset": 812
-  },
-  "reason": "Could not parse expression with acorn",
-  "ruleId": "acorn",
-  "source": "micromark-extension-mdx-expression",
-  "url": "https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression#could-not-parse-expression-with-acorn"
-}
-client (webpack 5.99.9) compiled with 1 error
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled with some errors in 2.56s
-Error: MDX compilation failed for file "/home/ubuntu/docusaurus/docs/documents/markdown-sample.md"
-Cause: Could not parse expression with acorn
-Details:
-{
-  "cause": {
-    "pos": 812,
-    "loc": {
-      "line": 41,
-      "column": 23
-    },
-    "raisedAt": 3
-  },
-  "column": 24,
-  "message": "Could not parse expression with acorn",
-  "line": 41,
-  "name": "41:24",
-  "place": {
-    "line": 41,
-    "column": 24,
-    "offset": 812
-  },
-  "reason": "Could not parse expression with acorn",
-  "ruleId": "acorn",
-  "source": "micromark-extension-mdx-expression",
-  "url": "https://github.com/micromark/micromark-extension-mdx-expression/tree/main/packages/micromark-extension-mdx-expression#could-not-parse-expression-with-acorn"
-}
-client (webpack 5.99.9) compiled with 1 error
-<w> [webpack.cache.PackFileCacheStrategy] Skipped not serializable cache item 'Compilation/modules|/home/ubuntu/docusaurus/node_modules/@docusaurus/mdx-loader/lib/index.js??ruleSet[1].rules[8].use[0]!/home/ubuntu/docusaurus/docs/documents/markdown-sample.md': No serializer registered for VFileMessage
-<w> while serializing webpack/lib/cache/PackFileCacheStrategy.PackContentItems -> webpack/lib/NormalModule -> webpack/lib/ModuleBuildError -> Error -> VFileMessage
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled with some errors in 1.19s
-Module not found: Error: Can't resolve '@site/docs/documents/markdown-sample.md' in '/home/ubuntu/docusaurus/.docusaurus'
-
---------------------------
-
-Module not found: Error: Can't resolve '@site/docs/documents/markdown-sample.md' in '/home/ubuntu/docusaurus/.docusaurus'
-client (webpack 5.99.9) compiled with 2 errors
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.07s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 975.83ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.20s
+[webpackbar] ✔ Client: Compiled successfully in 618.86ms
 client (webpack 5.99.9) compiled successfully

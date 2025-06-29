@@ -3,6 +3,41 @@ import ComponentCreator from '@docusaurus/ComponentCreator';
 
 export default [
   {
+    path: '/__docusaurus/debug',
+    component: ComponentCreator('/__docusaurus/debug', '5ff'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/config',
+    component: ComponentCreator('/__docusaurus/debug/config', '5ba'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/content',
+    component: ComponentCreator('/__docusaurus/debug/content', 'a2b'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/globalData',
+    component: ComponentCreator('/__docusaurus/debug/globalData', 'c3c'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/metadata',
+    component: ComponentCreator('/__docusaurus/debug/metadata', '156'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/registry',
+    component: ComponentCreator('/__docusaurus/debug/registry', '88c'),
+    exact: true
+  },
+  {
+    path: '/__docusaurus/debug/routes',
+    component: ComponentCreator('/__docusaurus/debug/routes', '000'),
+    exact: true
+  },
+  {
     path: '/author',
     component: ComponentCreator('/author', '7a0'),
     exact: true
@@ -99,49 +134,37 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', '2b2'),
+    component: ComponentCreator('/docs', 'cd0'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', 'e8f'),
+        component: ComponentCreator('/docs', 'acc'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', '44e'),
+            component: ComponentCreator('/docs', '9fc'),
             routes: [
               {
-                path: '/docs/documents/anuj',
-                component: ComponentCreator('/docs/documents/anuj', 'fe8'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/kuldeep',
-                component: ComponentCreator('/docs/documents/kuldeep', '89e'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
                 path: '/docs/documents/simple',
-                component: ComponentCreator('/docs/documents/simple', 'fb8'),
+                component: ComponentCreator('/docs/documents/simple', '4ad'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
                 path: '/docs/intro',
-                component: ComponentCreator('/docs/intro', 'e26'),
+                component: ComponentCreator('/docs/intro', '5ac'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
                 path: '/docs/kuldeep',
-                component: ComponentCreator('/docs/kuldeep', '45e'),
+                component: ComponentCreator('/docs/kuldeep', 'e44'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
               {
                 path: '/docs/simple',
-                component: ComponentCreator('/docs/simple', '04c'),
+                component: ComponentCreator('/docs/simple', '1a9'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               }
