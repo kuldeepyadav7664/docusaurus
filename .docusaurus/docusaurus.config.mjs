@@ -376,7 +376,7 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
+    "githubToken": "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ps",
     "authorUsers": [
       {
         "email": "author1@example.com",
