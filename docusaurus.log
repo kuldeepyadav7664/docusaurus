@@ -6,29 +6,5 @@ nohup: ignoring input
 [INFO] Starting the development server...
 [SUCCESS] Docusaurus website is running at: http://localhost:3000/
 [webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 2.56s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.32s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 4.49s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 1.18s
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 976.21ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 978.57ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 495.50ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 777.87ms
-client (webpack 5.99.9) compiled successfully
-[webpackbar] ℹ Compiling Client
-[webpackbar] ✔ Client: Compiled successfully in 618.86ms
+[webpackbar] ✔ Client: Compiled successfully in 2.89s
 client (webpack 5.99.9) compiled successfully
