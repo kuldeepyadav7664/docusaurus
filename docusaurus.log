@@ -6,3 +6,5 @@ nohup: ignoring input
 [INFO] Starting the development server...
 [SUCCESS] Docusaurus website is running at: http://localhost:3000/
 [webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 29.98s
+client (webpack 5.99.9) compiled successfully
