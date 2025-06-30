@@ -16,16 +16,19 @@ export default function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    const authorEmail = customFields.authorEmail;
-    const authorPass = customFields.authorPassword;
-    const managerEmail = customFields.managerEmail;
-    const managerPass = customFields.managerPassword;
+    // Get correct user list based on role
+    const userList =
+      role === 'Author' ? customFields.authorUsers : customFields.managerUsers;
 
-    const isAuthor = role === 'Author' && email === authorEmail && password === authorPass;
-    const isManager = role === 'Manager' && email === managerEmail && password === managerPass;
+    // Check if any user matches
+    const matchedUser = userList.find(
+      (user) => user.email === email && user.password === password
+    );
 
-    if (isAuthor || isManager) {
+    if (matchedUser) {
+      const username = matchedUser.email.split('@')[0];
       localStorage.setItem('role', role.toLowerCase());
+      localStorage.setItem('username', username);
       history.push(`/${role.toLowerCase()}`);
     } else {
       alert('Invalid credentials');

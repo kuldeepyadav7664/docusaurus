@@ -165,6 +165,7 @@
   display: flex;
   align-items: center;
   gap: 3rem;
+  justify-content: center;
 }
 
 .customFileInput {

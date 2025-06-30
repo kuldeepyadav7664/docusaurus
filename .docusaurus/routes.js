@@ -134,15 +134,15 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', 'eed'),
+    component: ComponentCreator('/docs', 'bf2'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '671'),
+        component: ComponentCreator('/docs', '31c'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', '349'),
+            component: ComponentCreator('/docs', '339'),
             routes: [
               {
                 path: '/docs/documents/anuj',
@@ -165,6 +165,12 @@ export default [
               {
                 path: '/docs/documents/simple2',
                 component: ComponentCreator('/docs/documents/simple2', '9ef'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/documents/simple3',
+                component: ComponentCreator('/docs/documents/simple3', 'cc2'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },

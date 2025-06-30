@@ -14,6 +14,9 @@ export default function ManagerDashboard() {
   const githubToken = siteConfig.customFields.githubToken;
   const repo = 'kuldeepyadav7664/docusaurus';
 
+  const username = localStorage.getItem('username') || 'Unknown';
+
+
   useEffect(() => {
     const role = localStorage.getItem('role');
     if (role !== 'manager') history.push('/login');
@@ -201,6 +204,8 @@ export default function ManagerDashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <h1 className={styles.heading}>Manager Dashboard</h1>
+                        <h3 className={styles.subheading}>Welcome back, <span style={{color: '#10b981', fontSize: '30px'}}>{username}</span></h3>
+            
             <p className={styles.subheading}>Review and manage documentation submissions</p>
           </div>
           <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>

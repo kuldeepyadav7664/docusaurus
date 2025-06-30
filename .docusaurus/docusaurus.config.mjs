@@ -376,11 +376,31 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
-    "authorEmail": "author@appsquadz.com",
-    "authorPassword": "author123",
-    "managerEmail": "manager@appsquadz.com",
-    "managerPassword": "manager123"
+    "githubToken": "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",
+    "authorUsers": [
+      {
+        "email": "author1@example.com",
+        "password": "pass123"
+      },
+      {
+        "email": "author2@example.com",
+        "password": "pass456"
+      }
+    ],
+    "managerUsers": [
+      {
+        "email": "manager1@example.com",
+        "password": "admin123"
+      },
+      {
+        "email": "manager2@example.com",
+        "password": "admin456"
+      },
+      {
+        "email": "kuldeep@example.com",
+        "password": "kuldeep"
+      }
+    ]
   },
   "baseUrlIssueBanner": true,
   "onBrokenAnchors": "warn",

@@ -141,10 +141,10 @@ function AuthorDashboard() {
   return (
     <Layout title="Author Dashboard">
       <main className={styles.main}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
           <div>
             <h1 className={styles.heading}>Author Dashboard</h1>
-            <p className={styles.subheading}>Welcome back, {username}!</p>
+            <h3 className={styles.subheading}>Welcome back, <span>{username}</span></h3>
           </div>
           <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>
         </div>
