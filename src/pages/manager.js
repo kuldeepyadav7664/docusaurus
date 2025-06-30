@@ -201,7 +201,7 @@ export default function ManagerDashboard() {
   return (
     <Layout title="Manager Dashboard">
       <main className={styles.main}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
           <div>
             <h1 className={styles.heading}>Manager Dashboard</h1>
                         <h3 className={styles.subheading}>Welcome back, <span style={{color: '#10b981', fontSize: '30px'}}>{username}</span></h3>
