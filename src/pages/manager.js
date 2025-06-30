@@ -1,4 +1,3 @@
-// /src/pages/manager.js
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './managerDashboard.module.css';
@@ -9,13 +8,12 @@ export default function ManagerDashboard() {
   const [documents, setDocuments] = useState([]);
   const [filter, setFilter] = useState('All');
   const [expandedDocId, setExpandedDocId] = useState(null);
+  const [processingDocId, setProcessingDocId] = useState(null);
   const history = useHistory();
   const { siteConfig } = useDocusaurusContext();
   const githubToken = siteConfig.customFields.githubToken;
   const repo = 'kuldeepyadav7664/docusaurus';
-
   const username = localStorage.getItem('username') || 'Unknown';
-
 
   useEffect(() => {
     const role = localStorage.getItem('role');
@@ -31,7 +29,6 @@ export default function ManagerDashboard() {
         const res = await fetch(`https://api.github.com/repos/${repo}/contents/docs/documents`, {
           headers: { Authorization: `Bearer ${githubToken}` },
         });
-
         if (res.status === 404) return [];
         const files = await res.json();
         if (!Array.isArray(files)) return [];
@@ -56,7 +53,7 @@ export default function ManagerDashboard() {
           })
         );
       } catch (err) {
-        console.error(`Error fetching approved documents:`, err);
+        console.error('Error fetching approved documents:', err);
         return [];
       }
     };
@@ -68,7 +65,6 @@ export default function ManagerDashboard() {
         const res = await fetch(`https://api.github.com/repos/${repo}/contents/pending-documents`, {
           headers: { Authorization: `Bearer ${githubToken}` },
         });
-
         if (res.status === 404) return [];
         const files = await res.json();
         if (!Array.isArray(files)) return [];
@@ -95,17 +91,16 @@ export default function ManagerDashboard() {
           })
         );
       } catch (err) {
-        console.error(`Error fetching pending documents:`, err);
+        console.error('Error fetching pending documents:', err);
         return [];
       }
     };
 
     const pendingDocs = await fetchPendingFiles();
-
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
     const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
-
     const docs = [...pendingDocs, ...approvedDocs, ...rejectedDocs];
+
     setDocuments(docs);
     localStorage.setItem('docs', JSON.stringify(docs));
     window.dispatchEvent(new Event('storage'));
@@ -174,15 +169,20 @@ export default function ManagerDashboard() {
 
   const handleApprove = async (index, comment) => {
     const doc = documents[index];
+    setProcessingDocId(doc.id);
     const success = await saveApprovedToGitHub(doc);
-    if (!success) return;
+    if (!success) {
+      setProcessingDocId(null);
+      return;
+    }
     await fetchDocuments();
+    setProcessingDocId(null);
   };
 
   const handleReject = async (index, comment) => {
     const doc = documents[index];
+    setProcessingDocId(doc.id);
     await deleteFromPending(doc.filename, doc.sha);
-
     const rejectedDoc = {
       ...doc,
       status: 'Rejected',
@@ -193,6 +193,7 @@ export default function ManagerDashboard() {
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
     localStorage.setItem('docs', JSON.stringify([...storedDocs, rejectedDoc]));
     await fetchDocuments();
+    setProcessingDocId(null);
   };
 
   const filteredDocs = filter === 'All' ? documents : documents.filter(d => d.status === filter);
@@ -204,8 +205,9 @@ export default function ManagerDashboard() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
           <div>
             <h1 className={styles.heading}>Manager Dashboard</h1>
-                        <h3 className={styles.subheading}>Welcome back, <span style={{color: '#10b981', fontSize: '30px'}}>{username}</span></h3>
-            
+            <h3 className={styles.subheading}>
+              Welcome back, <span style={{ color: '#10b981', fontSize: '30px' }}>{username}</span>
+            </h3>
             <p className={styles.subheading}>Review and manage documentation submissions</p>
           </div>
           <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>
@@ -228,57 +230,69 @@ export default function ManagerDashboard() {
 
         <section className={styles.section}>
           <h2>Documents</h2>
-          {filteredDocs.length === 0 ? <p>No documents found.</p> : filteredDocs.map((doc, index) => (
-            <div key={index} className={styles.documentCard}>
-              <div className={styles.docHeader}>
-                {doc.title} {doc.status === 'Pending' && '🟡'}
-                {doc.duplicate && doc.status === 'Pending' && (
-                  <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '0.5rem' }}>
-                    ⚠️ Duplicate of approved
-                  </span>
+          {filteredDocs.length === 0 ? <p>No documents found.</p> : filteredDocs.map((doc, index) => {
+            const isProcessing = processingDocId === doc.id;
+            return (
+              <div key={index} className={styles.documentCard}>
+                <div className={styles.docHeader}>
+                  {doc.title} {doc.status === 'Pending' && '🟡'}
+                  {doc.duplicate && doc.status === 'Pending' && (
+                    <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '0.5rem' }}>
+                      ⚠️ Duplicate of approved
+                    </span>
+                  )}
+                </div>
+                <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
+
+                <div className={styles.actionButtons}>
+                  <button className={styles.approveBtn} onClick={() => setExpandedDocId(expandedDocId === doc.id ? null : doc.id)}>
+                    {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
+                  </button>
+                  <button className={styles.rejectBtn} onClick={() => {
+                    const blob = new Blob([doc.content], { type: 'text/markdown' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${doc.title}.md`;
+                    a.click();
+                  }}>⬇️ Download</button>
+                </div>
+
+                {expandedDocId === doc.id && (
+                  <pre className={styles.docPreview}>{doc.content}</pre>
+                )}
+
+                {doc.status === 'Pending' && (
+                  <>
+                    <textarea
+                      className={styles.reviewTextarea}
+                      placeholder="Add comments..."
+                      onChange={(e) => {
+                        const updatedDocs = [...documents];
+                        updatedDocs[index].tempComment = e.target.value;
+                        setDocuments(updatedDocs);
+                      }}
+                    />
+
+                    {isProcessing ? (
+                      <div className={styles.processing}>⏳ Processing...</div>
+                    ) : (
+                      <div className={styles.actionButtons}>
+                        <button className={styles.approveBtn} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
+                        <button className={styles.rejectBtn} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {doc.reviewComment && (
+                  <div style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+                    Manager Comment: {doc.reviewComment}
+                  </div>
                 )}
               </div>
-              <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
-
-              <div className={styles.actionButtons}>
-                <button className={styles.approveBtn} onClick={() => setExpandedDocId(expandedDocId === doc.id ? null : doc.id)}>
-                  {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
-                </button>
-                <button className={styles.rejectBtn} onClick={() => {
-                  const blob = new Blob([doc.content], { type: 'text/markdown' });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement('a');
-                  a.href = url;
-                  a.download = `${doc.title}.md`;
-                  a.click();
-                }}>⬇️ Download</button>
-              </div>
-
-              {expandedDocId === doc.id && (
-                <pre className={styles.docPreview}>{doc.content}</pre>
-              )}
-
-              {doc.status === 'Pending' && (
-                <>
-                  <textarea className={styles.reviewTextarea} placeholder="Add comments about your review decision..." onChange={(e) => {
-                    const updatedDocs = [...documents];
-                    updatedDocs[index].tempComment = e.target.value;
-                    setDocuments(updatedDocs);
-                  }} />
-                  <div className={styles.actionButtons}>
-                    <button className={styles.approveBtn} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
-                    <button className={styles.rejectBtn} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
-                  </div>
-                </>
-              )}
-
-              {doc.reviewComment && (
-                <div style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
-                  Manager Comment: {doc.reviewComment}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
         </section>
       </main>
     </Layout>

@@ -36,6 +36,26 @@
               "sidebar": "tutorialSidebar"
             },
             {
+              "id": "documents/simple4",
+              "path": "/docs/documents/simple4",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "documents/simple5",
+              "path": "/docs/documents/simple5",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "documents/simple51",
+              "path": "/docs/documents/simple51",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "documents/simple6",
+              "path": "/docs/documents/simple6",
+              "sidebar": "tutorialSidebar"
+            },
+            {
               "id": "intro",
               "path": "/docs/intro",
               "sidebar": "tutorialSidebar"

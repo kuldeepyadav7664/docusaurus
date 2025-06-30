@@ -1,0 +1,26 @@
+{
+  "id": "documents/simple51",
+  "title": "simple51",
+  "description": "This text is really important.",
+  "source": "@site/docs/documents/simple51.md",
+  "sourceDirName": "documents",
+  "slug": "/documents/simple51",
+  "permalink": "/docs/documents/simple51",
+  "draft": false,
+  "unlisted": false,
+  "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/docs/documents/simple51.md",
+  "tags": [],
+  "version": "current",
+  "lastUpdatedBy": "Manager",
+  "lastUpdatedAt": 1751286882000,
+  "frontMatter": {},
+  "sidebar": "tutorialSidebar",
+  "previous": {
+    "title": "simple5",
+    "permalink": "/docs/documents/simple5"
+  },
+  "next": {
+    "title": "simple6",
+    "permalink": "/docs/documents/simple6"
+  }
+}
