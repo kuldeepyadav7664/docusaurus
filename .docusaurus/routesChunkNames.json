@@ -277,22 +277,34 @@
     },
     "content": "content---markdown-page-393-028"
   },
-  "/docs-cd0": {
+  "/docs-eed": {
     "__comp": "__comp---theme-docs-root-5-e-9-0b6",
     "__context": {
       "plugin": "plugin---docsaba-d7c"
     }
   },
-  "/docs-acc": {
+  "/docs-671": {
     "__comp": "__comp---theme-doc-version-roota-7-b-5de",
     "__props": "__props---docs-005-788"
   },
-  "/docs-9fc": {
+  "/docs-349": {
     "__comp": "__comp---theme-doc-roota-94-67a"
+  },
+  "/docs/documents/anuj-3a1": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-documents-anuj-310-4c1"
+  },
+  "/docs/documents/kuldeep-9cb": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-documents-kuldeep-034-c2f"
   },
   "/docs/documents/simple-4ad": {
     "__comp": "__comp---theme-doc-item-178-a40",
     "content": "content---docs-documents-simple-42-a-00a"
+  },
+  "/docs/documents/simple2-9ef": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-documents-simple-2-a-60-662"
   },
   "/docs/intro-5ac": {
     "__comp": "__comp---theme-doc-item-178-a40",

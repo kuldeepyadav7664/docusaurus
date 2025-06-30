@@ -8,3 +8,6 @@ nohup: ignoring input
 [webpackbar] ℹ Compiling Client
 [webpackbar] ✔ Client: Compiled successfully in 2.89s
 client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 2.79s
+client (webpack 5.99.9) compiled successfully
