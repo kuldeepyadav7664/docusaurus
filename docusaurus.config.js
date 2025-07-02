@@ -152,13 +152,13 @@ const config = {
   customFields: {
     githubToken: process.env.VITE_GITHUB_TOKEN,
  authorUsers: [
-      { email: 'author1@example.com', password: 'pass123' },
-      { email: 'author2@example.com', password: 'pass456' },
+      { email: 'saksham.verma@appsquadz.co', password: 'saksham' },
+      { email: 'author@appsquadz.co', password: 'author' },
     ],
     managerUsers: [
-      { email: 'manager1@example.com', password: 'admin123' },
-      { email: 'manager2@example.com', password: 'admin456' },
-      { email: 'kuldeep@example.com', password: 'kuldeep' },
+      { email: 'sumit.agrawal@appsquadz.co', password: 'admin123' },
+      { email: 'vishal.deep@appsquadz.co', password: 'admin456' },
+      { email: 'kuldeep.yadav@appsquadz.co', password: 'kuldeep' },
     ],
   },
 };

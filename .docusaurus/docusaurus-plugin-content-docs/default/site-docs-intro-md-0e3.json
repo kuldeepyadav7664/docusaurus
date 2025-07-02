@@ -1,7 +1,7 @@
 {
   "id": "intro",
-  "title": "AppSquadz - Advanced AWS Partner",
-  "description": "- Amazon S3",
+  "title": "Intro",
+  "description": "AppSquadz Technologies Pvt. Ltd. is a leading IT solutions provider specializing in secure, scalable, and high-performance platforms. We serve clients globally in the domains of education, media, and digital services.",
   "source": "@site/docs/intro.md",
   "sourceDirName": ".",
   "slug": "/intro",
@@ -11,11 +11,14 @@
   "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/docs/intro.md",
   "tags": [],
   "version": "current",
-  "lastUpdatedBy": "Kuldeep Yadav",
-  "lastUpdatedAt": 1750827380000,
+  "lastUpdatedBy": "Author",
+  "lastUpdatedAt": 1539502055000,
   "sidebarPosition": 1,
   "frontMatter": {
-    "sidebar_position": 1
+    "sidebar_position": 1,
+    "id": "intro",
+    "title": "Intro",
+    "sidebar_label": "Intro"
   },
   "sidebar": "tutorialSidebar",
   "next": {

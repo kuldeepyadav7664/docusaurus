@@ -39,14 +39,25 @@ function AuthorDashboard() {
         files.filter(f => f.name.endsWith('.md')).map(async file => {
           const res = await fetch(file.download_url);
           const content = await res.text();
+          const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
+          const fileAuthor = authorMatch ? authorMatch[1] : 'Unknown';
+
+          const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
+            headers: { Authorization: `Bearer ${githubToken}` },
+          });
+          const commitData = await commitRes.json();
+          const uploadedAt = Array.isArray(commitData) && commitData.length > 0
+            ? new Date(commitData[0].commit.author.date).toLocaleDateString()
+            : '-';
+
           return {
             id: file.sha,
             title: file.name.replace('.md', ''),
             status,
-            uploadedAt: '-',
+            uploadedAt,
             reviewedAt: status !== 'Pending' ? new Date().toLocaleDateString() : '-',
             reviewComment: status === 'Rejected' ? 'Rejected' : (status === 'Approved' ? 'Approved' : 'Awaiting review'),
-            author: username,
+            author: fileAuthor,
             content,
             filename: file.name,
             sha: file.sha,
@@ -78,7 +89,8 @@ function AuthorDashboard() {
 
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const content = e.target.result;
+      const timestamp = new Date().toISOString();
+      const content = `<!-- author: ${username} -->\n<!-- uploadedAt: ${timestamp} -->\n` + e.target.result;
       const encodedContent = btoa(unescape(encodeURIComponent(content)));
       const path = `pending-documents/${file.name}`;
       const url = `https://api.github.com/repos/${repo}/contents/${path}`;
@@ -169,15 +181,15 @@ function AuthorDashboard() {
         </div>
 
         <section className={styles.documentSection}>
-          <h2>My Documents</h2>
-          {documents.filter(doc => doc.author === username).map((doc, index) => (
+          <h2>Documents</h2>
+          {documents.map((doc, index) => (
             <div key={index} className={styles.documentCard}>
               <div className={styles.docHeader}>
                 <span>{doc.status === 'Approved' ? '✅' : doc.status === 'Rejected' ? '❌' : '⏳'}</span>
                 <span className={styles.docTitle}>{doc.title}</span>
                 <span className={styles.docStatus}>{doc.status}</span>
               </div>
-              <div className={styles.docMeta}>Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
+              <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
               <div className={styles.docComment}><strong>Comments:</strong> {doc.reviewComment}</div>
               <button className={styles.uploadBtn} onClick={() => toggleView(doc.id)}>
                 {expandedDocId === doc.id ? 'Hide' : 'View'} Document

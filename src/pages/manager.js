@@ -1,3 +1,4 @@
+// /src/pages/manager.js
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './managerDashboard.module.css';
@@ -9,6 +10,7 @@ export default function ManagerDashboard() {
   const [filter, setFilter] = useState('All');
   const [expandedDocId, setExpandedDocId] = useState(null);
   const [processingDocId, setProcessingDocId] = useState(null);
+  const [showWaitMessage, setShowWaitMessage] = useState(false);
   const history = useHistory();
   const { siteConfig } = useDocusaurusContext();
   const githubToken = siteConfig.customFields.githubToken;
@@ -37,14 +39,27 @@ export default function ManagerDashboard() {
           files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
             const res = await fetch(file.download_url);
             const content = await res.text();
+            const matchReviewer = content.match(/<!--\s*approvedBy:\s*(.*?)\s*-->/i);
+            const matchAuthor = content.match(/<!--\s*author:\s*(.*?)\s*-->/i);
+            const reviewerName = matchReviewer ? matchReviewer[1] : 'Unknown';
+            const authorName = matchAuthor ? matchAuthor[1] : 'Unknown';
+
+            const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
+              headers: { Authorization: `Bearer ${githubToken}` },
+            });
+            const commitData = await commitRes.json();
+            const uploadDate = Array.isArray(commitData) && commitData.length > 0
+              ? new Date(commitData[0].commit.author.date).toLocaleDateString()
+              : '-';
+
             return {
               id: file.sha,
               title: file.name.replace('.md', ''),
               status: 'Approved',
-              uploadedAt: '-',
+              uploadedAt: uploadDate,
               reviewedAt: new Date().toLocaleDateString(),
-              reviewComment: 'Approved on GitHub',
-              author: '-',
+              reviewComment: `Approved by ${reviewerName}`,
+              author: authorName,
               content,
               filename: file.name,
               sha: file.sha,
@@ -57,8 +72,6 @@ export default function ManagerDashboard() {
         return [];
       }
     };
-
-    const approvedDocs = await fetchApprovedFiles();
 
     const fetchPendingFiles = async () => {
       try {
@@ -73,20 +86,29 @@ export default function ManagerDashboard() {
           files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
             const res = await fetch(file.download_url);
             const content = await res.text();
-            const isDuplicate = approvedDocs.some(ad => ad.filename === file.name);
+            const matchAuthor = content.match(/<!--\s*author:\s*(.*?)\s*-->/i);
+            const authorName = matchAuthor ? matchAuthor[1] : 'Unknown';
+
+            const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
+              headers: { Authorization: `Bearer ${githubToken}` },
+            });
+            const commitData = await commitRes.json();
+            const uploadDate = Array.isArray(commitData) && commitData.length > 0
+              ? new Date(commitData[0].commit.author.date).toLocaleDateString()
+              : '-';
+
             return {
               id: file.sha,
               title: file.name.replace('.md', ''),
               status: 'Pending',
-              uploadedAt: '-',
+              uploadedAt: uploadDate,
               reviewedAt: '-',
               reviewComment: 'Awaiting review',
-              author: '-',
+              author: authorName,
               content,
               filename: file.name,
               sha: file.sha,
               source: 'pending-documents',
-              duplicate: isDuplicate,
             };
           })
         );
@@ -96,10 +118,16 @@ export default function ManagerDashboard() {
       }
     };
 
+    const approvedDocs = await fetchApprovedFiles();
     const pendingDocs = await fetchPendingFiles();
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
     const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
-    const docs = [...pendingDocs, ...approvedDocs, ...rejectedDocs];
+
+    const filteredPendingDocs = pendingDocs.filter(
+      pd => !approvedDocs.some(ad => ad.filename === pd.filename)
+    );
+
+    const docs = [...filteredPendingDocs, ...approvedDocs, ...rejectedDocs];
 
     setDocuments(docs);
     localStorage.setItem('docs', JSON.stringify(docs));
@@ -125,11 +153,76 @@ export default function ManagerDashboard() {
       console.error('Error deleting file from pending-documents:', err);
     }
   };
+  
+  // ✅ NEW DELETE FUNCTION FOR APPROVED DOCS
+
+  const deleteApprovedDoc = async (doc) => {
+
+    const path = `docs/documents/${doc.filename}`;
+
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+
+    try {
+
+      const res = await fetch(url, {
+
+        method: 'DELETE',
+
+        headers: {
+
+          Authorization: `Bearer ${githubToken}`,
+
+          'Content-Type': 'application/json',
+
+        },
+
+        body: JSON.stringify({
+
+          message: `Delete approved document ${doc.filename}`,
+
+          sha: doc.sha,
+
+          committer: { name: 'Manager', email: 'manager@appsquadz.com' },
+
+        }),
+
+      });
+
+
+
+      if (!res.ok) {
+
+        console.error('Error deleting approved doc:', await res.json());
+
+        alert('Failed to delete the document from GitHub.');
+
+        return;
+
+      }
+
+
+
+      const updatedDocs = documents.filter(d => d.filename !== doc.filename);
+
+      setDocuments(updatedDocs);
+
+      localStorage.setItem('docs', JSON.stringify(updatedDocs));
+
+      alert(`✅ ${doc.filename} deleted successfully.`);
+
+    } catch (err) {
+
+      console.error('Delete failed:', err);
+
+      alert('Error deleting document.');
+
+    }
+
+  };
 
   const saveApprovedToGitHub = async (doc) => {
     const path = `docs/documents/${doc.title}.md`;
     const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
     const check = await fetch(url, {
       headers: { Authorization: `Bearer ${githubToken}` }
     });
@@ -142,7 +235,9 @@ export default function ManagerDashboard() {
       sha = data.sha;
     }
 
-    const content = btoa(unescape(encodeURIComponent(doc.content)));
+    const approvedByComment = `<!-- approvedBy: ${username} -->\n`;
+    const content = btoa(unescape(encodeURIComponent(approvedByComment + doc.content)));
+
     const res = await fetch(url, {
       method: 'PUT',
       headers: {
@@ -170,12 +265,36 @@ export default function ManagerDashboard() {
   const handleApprove = async (index, comment) => {
     const doc = documents[index];
     setProcessingDocId(doc.id);
+    const delay = new Promise(resolve => setTimeout(resolve, 20000));
+    setShowWaitMessage(true);
+    setTimeout(() => {
+      setShowWaitMessage(false);
+      window.location.reload();
+    }, 40000);
+
     const success = await saveApprovedToGitHub(doc);
     if (!success) {
       setProcessingDocId(null);
       return;
     }
-    await fetchDocuments();
+
+    await delay;
+
+    const updatedDoc = {
+      ...doc,
+      status: 'Approved',
+      reviewedAt: new Date().toLocaleDateString(),
+      reviewComment: comment || 'Approved',
+    };
+
+    const updatedDocs = [...documents];
+    updatedDocs[index] = updatedDoc;
+    setDocuments(updatedDocs);
+
+    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
+    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, updatedDoc]));
+
     setProcessingDocId(null);
   };
 
@@ -183,6 +302,7 @@ export default function ManagerDashboard() {
     const doc = documents[index];
     setProcessingDocId(doc.id);
     await deleteFromPending(doc.filename, doc.sha);
+
     const rejectedDoc = {
       ...doc,
       status: 'Rejected',
@@ -190,9 +310,14 @@ export default function ManagerDashboard() {
       reviewComment: comment || 'Rejected',
     };
 
+    const updatedDocs = [...documents];
+    updatedDocs[index] = rejectedDoc;
+    setDocuments(updatedDocs);
+
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-    localStorage.setItem('docs', JSON.stringify([...storedDocs, rejectedDoc]));
-    await fetchDocuments();
+    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
+
     setProcessingDocId(null);
   };
 
@@ -236,11 +361,6 @@ export default function ManagerDashboard() {
               <div key={index} className={styles.documentCard}>
                 <div className={styles.docHeader}>
                   {doc.title} {doc.status === 'Pending' && '🟡'}
-                  {doc.duplicate && doc.status === 'Pending' && (
-                    <span style={{ color: 'red', fontWeight: 'bold', marginLeft: '0.5rem' }}>
-                      ⚠️ Duplicate of approved
-                    </span>
-                  )}
                 </div>
                 <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
 
@@ -262,33 +382,45 @@ export default function ManagerDashboard() {
                   <pre className={styles.docPreview}>{doc.content}</pre>
                 )}
 
-                {doc.status === 'Pending' && (
-                  <>
-                    <textarea
-                      className={styles.reviewTextarea}
-                      placeholder="Add comments..."
-                      onChange={(e) => {
-                        const updatedDocs = [...documents];
-                        updatedDocs[index].tempComment = e.target.value;
-                        setDocuments(updatedDocs);
-                      }}
-                    />
+                {isProcessing && (
+                  <div className={styles.processing}>⏳ Processing...</div>
+                )}
 
-                    {isProcessing ? (
-                      <div className={styles.processing}>⏳ Processing...</div>
-                    ) : (
-                      <div className={styles.actionButtons}>
-                        <button className={styles.approveBtn} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
-                        <button className={styles.rejectBtn} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
-                      </div>
-                    )}
+                {showWaitMessage && (
+                  <div className={styles.waitMessage}>This will take some time, please wait...</div>
+                )}
+
+                {doc.status === 'Pending' && !isProcessing && (
+                  <>
+                    <textarea className={styles.reviewTextarea} placeholder="Add comments..." onChange={(e) => {
+                      const updatedDocs = [...documents];
+                      updatedDocs[index].tempComment = e.target.value;
+                      setDocuments(updatedDocs);
+                    }} />
+                    <div className={styles.actionButtons}>
+                      <button className={styles.approveBtn} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
+                      <button className={styles.rejectBtn} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
+                    </div>
                   </>
                 )}
 
-                {doc.reviewComment && (
+                {(doc.status === 'Approved' || doc.status === 'Rejected') && doc.reviewComment && (
                   <div style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
                     Manager Comment: {doc.reviewComment}
                   </div>
+                )}
+
+                {doc.status === 'Approved' && (
+                  <button
+                    className={styles.rejectBtn}
+                    style={{ marginTop: '10px', backgroundColor: '#dc2626' }}
+                    onClick={() => {
+                      const confirm = window.confirm(`Are you sure you want to delete "${doc.title}"?`);
+                      if (confirm) deleteApprovedDoc(doc);
+                    }}
+                  >
+                    🗑️ Delete Document
+                  </button>
                 )}
               </div>
             );

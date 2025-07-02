@@ -54,6 +54,7 @@
   color: #b0d8ff;
   font-weight: 600;
   position: relative;
+  flex: 1;
 }
 
 .statNumber {
@@ -94,6 +95,7 @@
   border: none;
   border-radius: 30px;
   padding: 0.75rem 2rem;
+  margin-bottom: 13px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 0 12px rgba(0, 170, 255, 0.7);
@@ -158,6 +160,7 @@
   color: #c0f7ff;
   background: #013654;
   padding: 0.5rem 1rem;
+  margin: inherit;
   border-radius: 8px;
 }
 
@@ -177,6 +180,8 @@
   color: #000;
   padding: 10px 20px;
   border-radius: 25px;
+  font-size: 12px;
+  margin-bottom: auto;
   cursor: pointer;
   font-weight: bold;
   box-shadow: 0 0 8px #00bfff;
@@ -184,11 +189,16 @@
 }
 
 .fileLabel:hover {
-  background-color: #0099cc;
-  box-shadow: 0 0 12px #0099cc;
+  background: #0088cc;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #00aaff;
 }
 
 .fileName {
   color: #fff;
   font-style: italic;
+}
+
+.docPreview {
+      background: #334155;
 }

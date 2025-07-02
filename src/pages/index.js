@@ -102,7 +102,7 @@ export default function Home() {
           </div>
         </section>
 
-        <footer className={styles.footer}>
+        <footer className={styles.footer1}>
           <img src="/img/logo.svg" alt="AppSquadz" className={styles.logo} />
           <p>© {new Date().getFullYear()} AppSquadz Technologies. All rights reserved.</p>
         </footer>

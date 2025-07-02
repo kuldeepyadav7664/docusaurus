@@ -49,7 +49,7 @@ export default {
         "docs": {
           "path": "docs",
           "routeBasePath": "docs",
-          "sidebarPath": "/home/ubuntu/docusaurus/sidebars.js",
+          "sidebarPath": "/home/kuldeep7664/kd/docusaurus/sidebars.js",
           "editUrl": "https://github.com/kuldeepyadav7664/docusaurus/edit/main/",
           "includeCurrentVersion": true,
           "showLastUpdateTime": true,
@@ -376,28 +376,28 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
+    "githubToken": "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",
     "authorUsers": [
       {
-        "email": "author1@example.com",
-        "password": "pass123"
+        "email": "saksham.verma@appsquadz.co",
+        "password": "saksham"
       },
       {
-        "email": "author2@example.com",
-        "password": "pass456"
+        "email": "author@appsquadz.co",
+        "password": "author"
       }
     ],
     "managerUsers": [
       {
-        "email": "manager1@example.com",
+        "email": "sumit.agrawal@appsquadz.co",
         "password": "admin123"
       },
       {
-        "email": "manager2@example.com",
+        "email": "vishal.deep@appsquadz.co",
         "password": "admin456"
       },
       {
-        "email": "kuldeep@example.com",
+        "email": "kuldeep.yadav@appsquadz.co",
         "password": "kuldeep"
       }
     ]
