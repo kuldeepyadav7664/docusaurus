@@ -15,16 +15,40 @@ function AuthorDashboard() {
   const [documents, setDocuments] = useState([]);
   const [file, setFile] = useState(null);
   const [expandedDocId, setExpandedDocId] = useState(null);
+  const [folders, setFolders] = useState([]);
+  const [selectedFolder, setSelectedFolder] = useState('');
 
   const username = localStorage.getItem('username') || 'Unknown';
 
   useEffect(() => {
     const role = localStorage.getItem('role');
     if (role !== 'author') history.push('/login');
-    fetchDocuments();
+    fetchFolders();
     const interval = setInterval(fetchDocuments, 10000);
     return () => clearInterval(interval);
   }, []);
+
+  const fetchFolders = async () => {
+    try {
+      const repoRes = await fetch(`https://api.github.com/repos/${repo}`, {
+        headers: { Authorization: `Bearer ${githubToken}` },
+      });
+      const repoData = await repoRes.json();
+      const defaultBranch = repoData.default_branch || 'main';
+
+      const res = await fetch(`https://api.github.com/repos/${repo}/git/trees/${defaultBranch}?recursive=1`, {
+        headers: { Authorization: `Bearer ${githubToken}` },
+      });
+      const data = await res.json();
+      const dirs = data.tree
+        .filter(item => item.type === 'tree' && item.path.startsWith('pending-documents/') && item.path.split('/').length === 2)
+        .map(item => item.path.split('/')[1]);
+      setFolders(dirs);
+      setSelectedFolder(dirs[0] || '');
+    } catch (err) {
+      console.error('Error fetching folders:', err);
+    }
+  };
 
   const fetchFiles = async (path, status) => {
     try {
@@ -71,13 +95,14 @@ function AuthorDashboard() {
   };
 
   const fetchDocuments = async () => {
-    const [pendingDocs, approvedDocs] = await Promise.all([
-      fetchFiles('pending-documents', 'Pending'),
-      fetchFiles('docs/documents', 'Approved')
-    ]);
+    const pendingDocs = await Promise.all(
+      folders.map(folder => fetchFiles(`pending-documents/${folder}`, 'Pending'))
+    );
+
+    const approvedDocs = await fetchFiles('docs', 'Approved');
     const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
     const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
-    const docs = [...pendingDocs, ...approvedDocs, ...rejectedDocs];
+    const docs = [...pendingDocs.flat(), ...approvedDocs, ...rejectedDocs];
     setDocuments(docs);
     localStorage.setItem('docs', JSON.stringify(docs));
     window.dispatchEvent(new Event('storage'));
@@ -86,13 +111,14 @@ function AuthorDashboard() {
   const handleUpload = async () => {
     if (!file) return alert('Please select a Markdown (.md) file');
     if (!file.name.endsWith('.md')) return alert('Only .md files are allowed');
+    if (!selectedFolder) return alert('Please select a folder');
 
     const reader = new FileReader();
     reader.onload = async (e) => {
       const timestamp = new Date().toISOString();
       const content = `<!-- author: ${username} -->\n<!-- uploadedAt: ${timestamp} -->\n` + e.target.result;
       const encodedContent = btoa(unescape(encodeURIComponent(content)));
-      const path = `pending-documents/${file.name}`;
+      const path = `pending-documents/${selectedFolder}/${file.name}`;
       const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
       const newDoc = {
@@ -103,7 +129,7 @@ function AuthorDashboard() {
 
       const check = await fetch(url, { headers: { Authorization: `Bearer ${githubToken}` } });
       if (check.status === 200) {
-        const confirm = window.confirm(`⚠️ ${file.name} already exists. Overwrite?`);
+        const confirm = window.confirm(`⚠️ ${file.name} already exists in ${selectedFolder}. Overwrite?`);
         if (!confirm) return;
         const existing = await check.json();
         newDoc.sha = existing.sha;
@@ -177,6 +203,15 @@ function AuthorDashboard() {
             onChange={(e) => setFile(e.target.files[0])}
             className={styles.customFileInput}
           />
+          <select
+            className={styles.folderSelect}
+            value={selectedFolder}
+            onChange={(e) => setSelectedFolder(e.target.value)}
+          >
+            {folders.map(folder => (
+              <option key={folder} value={folder}>{folder}</option>
+            ))}
+          </select>
           <button className={styles.uploadBtn} onClick={handleUpload}>Upload Document</button>
         </div>
 
