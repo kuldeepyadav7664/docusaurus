@@ -11,48 +11,8 @@
           "mainDocId": "intro",
           "docs": [
             {
-              "id": "documents/anuj",
-              "path": "/docs/documents/anuj",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/kuldeep",
-              "path": "/docs/documents/kuldeep",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple",
-              "path": "/docs/documents/simple",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple2",
-              "path": "/docs/documents/simple2",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple3",
-              "path": "/docs/documents/simple3",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple4",
-              "path": "/docs/documents/simple4",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple5",
-              "path": "/docs/documents/simple5",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple51",
-              "path": "/docs/documents/simple51",
-              "sidebar": "tutorialSidebar"
-            },
-            {
-              "id": "documents/simple6",
-              "path": "/docs/documents/simple6",
+              "id": "India-AI/simple2",
+              "path": "/docs/India-AI/simple2",
               "sidebar": "tutorialSidebar"
             },
             {
@@ -63,6 +23,11 @@
             {
               "id": "kuldeep",
               "path": "/docs/kuldeep",
+              "sidebar": "tutorialSidebar"
+            },
+            {
+              "id": "Prasar-Bharati/anuj",
+              "path": "/docs/Prasar-Bharati/anuj",
               "sidebar": "tutorialSidebar"
             },
             {

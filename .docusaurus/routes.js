@@ -134,67 +134,19 @@ export default [
   },
   {
     path: '/docs',
-    component: ComponentCreator('/docs', 'abd'),
+    component: ComponentCreator('/docs', '6b2'),
     routes: [
       {
         path: '/docs',
-        component: ComponentCreator('/docs', '598'),
+        component: ComponentCreator('/docs', '78c'),
         routes: [
           {
             path: '/docs',
-            component: ComponentCreator('/docs', '073'),
+            component: ComponentCreator('/docs', 'ad9'),
             routes: [
               {
-                path: '/docs/documents/anuj',
-                component: ComponentCreator('/docs/documents/anuj', '3a1'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/kuldeep',
-                component: ComponentCreator('/docs/documents/kuldeep', '9cb'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple',
-                component: ComponentCreator('/docs/documents/simple', '4ad'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple2',
-                component: ComponentCreator('/docs/documents/simple2', '9ef'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple3',
-                component: ComponentCreator('/docs/documents/simple3', 'cc2'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple4',
-                component: ComponentCreator('/docs/documents/simple4', 'f0c'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple5',
-                component: ComponentCreator('/docs/documents/simple5', 'c59'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple51',
-                component: ComponentCreator('/docs/documents/simple51', 'de8'),
-                exact: true,
-                sidebar: "tutorialSidebar"
-              },
-              {
-                path: '/docs/documents/simple6',
-                component: ComponentCreator('/docs/documents/simple6', 'c98'),
+                path: '/docs/India-AI/simple2',
+                component: ComponentCreator('/docs/India-AI/simple2', '12a'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },
@@ -207,6 +159,12 @@ export default [
               {
                 path: '/docs/kuldeep',
                 component: ComponentCreator('/docs/kuldeep', 'e44'),
+                exact: true,
+                sidebar: "tutorialSidebar"
+              },
+              {
+                path: '/docs/Prasar-Bharati/anuj',
+                component: ComponentCreator('/docs/Prasar-Bharati/anuj', '0cf'),
                 exact: true,
                 sidebar: "tutorialSidebar"
               },

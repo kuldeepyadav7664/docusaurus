@@ -12,44 +12,43 @@ export default function CustomSearchModal() {
   const inputRef = useRef(null);
   const history = useHistory();
 
-  const GITHUB_API_URLS = [
-    {
-      url: 'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs',
-      prefix: '/docs',
-    },
-    {
-      url: 'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs/documents',
-      prefix: '/docs/documents',
-    },
-  ];
+  const GITHUB_API_URL = 'https://api.github.com/repos/kuldeepyadav7664/docusaurus/contents/docs';
 
-  useEffect(() => {
-    const fetchDocs = async () => {
-      try {
-        let allFiles = [];
+  // Recursive function to fetch all files from docs and subdirectories
+  const fetchDocsRecursive = async (url, prefix = '') => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
 
-        for (const { url, prefix } of GITHUB_API_URLS) {
-          const response = await fetch(url);
-          const data = await response.json();
-
-          if (Array.isArray(data)) {
-            const files = data
-              .filter((item) => item.type === 'file')
-              .map((item) => ({
+      if (Array.isArray(data)) {
+        for (const item of data) {
+          if (item.type === 'file') {
+            // Add the file with its full path (folder + file)
+            setDocList((prevList) => [
+              ...prevList,
+              {
                 name: item.name,
                 fullPath: `${prefix}/${item.name
                   .toLowerCase()
                   .replace(/\s+/g, '-')
                   .replace(/\.mdx?$/, '')}`,
-              }));
-            allFiles = [...allFiles, ...files];
+                folderPath: prefix, // Save the folder path too
+              },
+            ]);
+          } else if (item.type === 'dir') {
+            // Recurse if the item is a directory
+            await fetchDocsRecursive(item.url, `${prefix}/${item.name}`);
           }
         }
-
-        setDocList(allFiles);
-      } catch (err) {
-        console.error('GitHub fetch error:', err);
       }
+    } catch (err) {
+      console.error('GitHub fetch error:', err);
+    }
+  };
+
+  useEffect(() => {
+    const fetchDocs = async () => {
+      await fetchDocsRecursive(GITHUB_API_URL); // Fetch docs recursively from the base docs folder
     };
 
     fetchDocs();
@@ -64,9 +63,16 @@ export default function CustomSearchModal() {
     const match = docList.filter((doc) =>
       doc.name.toLowerCase().includes(query.toLowerCase())
     );
-    setSuggestions(match);
+
+    // Sort results and include the folder path in the suggestions
+    const sortedResults = match.map((doc) => ({
+      ...doc,
+      displayText: `${doc.folderPath}${doc.folderPath ? '/' : ''}${doc.name.replace(/\.mdx?$/, '')}`,
+    }));
+
+    setSuggestions(sortedResults);
     setActiveIndex(0);
-  }, [query]);
+  }, [query, docList]);
 
   useEffect(() => {
     const down = (e) => {
@@ -156,7 +162,9 @@ export default function CustomSearchModal() {
                       tabIndex={0}
                     >
                       <FileText className={styles.suggestionIcon} />
-                      {doc.name.replace(/\.mdx?$/, '')}
+                      <span className={styles.suggestionFileName}>
+                        {doc.displayText}
+                      </span>
                     </div>
                   ))}
                 </>

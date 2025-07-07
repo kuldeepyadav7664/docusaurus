@@ -277,54 +277,22 @@
     },
     "content": "content---markdown-page-393-028"
   },
-  "/docs-abd": {
+  "/docs-6b2": {
     "__comp": "__comp---theme-docs-root-5-e-9-0b6",
     "__context": {
       "plugin": "plugin---docsaba-d7c"
     }
   },
-  "/docs-598": {
+  "/docs-78c": {
     "__comp": "__comp---theme-doc-version-roota-7-b-5de",
     "__props": "__props---docs-005-788"
   },
-  "/docs-073": {
+  "/docs-ad9": {
     "__comp": "__comp---theme-doc-roota-94-67a"
   },
-  "/docs/documents/anuj-3a1": {
+  "/docs/India-AI/simple2-12a": {
     "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-anuj-310-4c1"
-  },
-  "/docs/documents/kuldeep-9cb": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-kuldeep-034-c2f"
-  },
-  "/docs/documents/simple-4ad": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-42-a-00a"
-  },
-  "/docs/documents/simple2-9ef": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-2-a-60-662"
-  },
-  "/docs/documents/simple3-cc2": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-37-b-9-b0b"
-  },
-  "/docs/documents/simple4-f0c": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-430-e-c76"
-  },
-  "/docs/documents/simple5-c59": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-50-a-1-dd0"
-  },
-  "/docs/documents/simple51-de8": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-51952-862"
-  },
-  "/docs/documents/simple6-c98": {
-    "__comp": "__comp---theme-doc-item-178-a40",
-    "content": "content---docs-documents-simple-64-e-0-c5b"
+    "content": "content---docs-india-ai-simple-2-e-79-42f"
   },
   "/docs/intro-5ac": {
     "__comp": "__comp---theme-doc-item-178-a40",
@@ -333,6 +301,10 @@
   "/docs/kuldeep-e44": {
     "__comp": "__comp---theme-doc-item-178-a40",
     "content": "content---docs-kuldeepa-33-6fa"
+  },
+  "/docs/Prasar-Bharati/anuj-0cf": {
+    "__comp": "__comp---theme-doc-item-178-a40",
+    "content": "content---docs-prasar-bharati-anuj-1-b-0-273"
   },
   "/docs/simple-1a9": {
     "__comp": "__comp---theme-doc-item-178-a40",

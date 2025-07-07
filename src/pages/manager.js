@@ -1,16 +1,24 @@
-// /src/pages/manager.js
 import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
 import styles from './managerDashboard.module.css';
 import { useHistory } from '@docusaurus/router';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
+// Add at the top:
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 export default function ManagerDashboard() {
   const [documents, setDocuments] = useState([]);
   const [filter, setFilter] = useState('All');
   const [expandedDocId, setExpandedDocId] = useState(null);
   const [processingDocId, setProcessingDocId] = useState(null);
-  const [showWaitMessage, setShowWaitMessage] = useState(false);
+  const [showWaitMessage, setShowWaitMessage] = useState(null);
+  const [disabledButtons, setDisabledButtons] = useState({});
+  // For custom delete confirmation modal
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [docToDelete, setDocToDelete] = useState(null);
+
   const history = useHistory();
   const { siteConfig } = useDocusaurusContext();
   const githubToken = siteConfig.customFields.githubToken;
@@ -26,112 +34,86 @@ export default function ManagerDashboard() {
   }, []);
 
   const fetchDocuments = async () => {
-    const fetchApprovedFiles = async () => {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/docs/documents`, {
-          headers: { Authorization: `Bearer ${githubToken}` },
-        });
-        if (res.status === 404) return [];
-        const files = await res.json();
-        if (!Array.isArray(files)) return [];
+    try {
+      const allDocs = [];
+      const pendingRes = await fetch(`https://api.github.com/repos/${repo}/contents/pending-documents`, {
+        headers: { Authorization: `token ${githubToken}` },
+      });
+      const pendingFolders = await pendingRes.json();
+      const subPendingFolders = pendingFolders.filter(item => item.type === 'dir');
 
-        return Promise.all(
-          files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
-            const res = await fetch(file.download_url);
-            const content = await res.text();
-            const matchReviewer = content.match(/<!--\s*approvedBy:\s*(.*?)\s*-->/i);
-            const matchAuthor = content.match(/<!--\s*author:\s*(.*?)\s*-->/i);
-            const reviewerName = matchReviewer ? matchReviewer[1] : 'Unknown';
-            const authorName = matchAuthor ? matchAuthor[1] : 'Unknown';
+      for (const folder of subPendingFolders) {
+        const folderName = folder.name;
+        const filesRes = await fetch(folder.url, { headers: { Authorization: `token ${githubToken}` } });
+        const files = await filesRes.json();
+        const mdFiles = files.filter(file => file.name.endsWith('.md'));
 
-            const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
-              headers: { Authorization: `Bearer ${githubToken}` },
-            });
-            const commitData = await commitRes.json();
-            const uploadDate = Array.isArray(commitData) && commitData.length > 0
-              ? new Date(commitData[0].commit.author.date).toLocaleDateString()
-              : '-';
+        for (const file of mdFiles) {
+          const contentRes = await fetch(file.download_url);
+          const content = await contentRes.text();
+          const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
+          const author = authorMatch ? authorMatch[1] : 'Unknown';
 
-            return {
-              id: file.sha,
-              title: file.name.replace('.md', ''),
-              status: 'Approved',
-              uploadedAt: uploadDate,
-              reviewedAt: new Date().toLocaleDateString(),
-              reviewComment: `Approved by ${reviewerName}`,
-              author: authorName,
-              content,
-              filename: file.name,
-              sha: file.sha,
-              source: 'docs/documents',
-            };
-          })
-        );
-      } catch (err) {
-        console.error('Error fetching approved documents:', err);
-        return [];
+          allDocs.push({
+            id: file.sha,
+            title: file.name.replace('.md', ''),
+            filename: file.name,
+            folder: folderName,
+            status: 'Pending',
+            author,
+            content,
+            reviewedAt: '-',
+            uploadedAt: new Date().toLocaleDateString(),
+            reviewComment: '',
+          });
+        }
       }
-    };
 
-    const fetchPendingFiles = async () => {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${repo}/contents/pending-documents`, {
-          headers: { Authorization: `Bearer ${githubToken}` },
+      const docsRes = await fetch(`https://api.github.com/repos/${repo}/contents/docs`, {
+        headers: { Authorization: `token ${githubToken}` },
+      });
+      const docFolders = await docsRes.json();
+      const subDocFolders = docFolders.filter(item => item.type === 'dir');
+
+      for (const folder of subDocFolders) {
+        const folderName = folder.name;
+        const filesRes = await fetch(folder.url, {
+          headers: { Authorization: `token ${githubToken}` },
         });
-        if (res.status === 404) return [];
-        const files = await res.json();
-        if (!Array.isArray(files)) return [];
+        const files = await filesRes.json();
+        const mdFiles = files.filter(file => file.name.endsWith('.md'));
 
-        return Promise.all(
-          files.filter(f => f.name.endsWith('.md') && f.download_url).map(async file => {
-            const res = await fetch(file.download_url);
-            const content = await res.text();
-            const matchAuthor = content.match(/<!--\s*author:\s*(.*?)\s*-->/i);
-            const authorName = matchAuthor ? matchAuthor[1] : 'Unknown';
+        for (const file of mdFiles) {
+          const contentRes = await fetch(file.download_url);
+          const content = await contentRes.text();
+          const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
+          const commentMatch = content.match(/<!--\s*reviewComment:\s*(.*?)\s*-->/);
+          const author = authorMatch ? authorMatch[1] : 'Unknown';
 
-            const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
-              headers: { Authorization: `Bearer ${githubToken}` },
-            });
-            const commitData = await commitRes.json();
-            const uploadDate = Array.isArray(commitData) && commitData.length > 0
-              ? new Date(commitData[0].commit.author.date).toLocaleDateString()
-              : '-';
-
-            return {
-              id: file.sha,
-              title: file.name.replace('.md', ''),
-              status: 'Pending',
-              uploadedAt: uploadDate,
-              reviewedAt: '-',
-              reviewComment: 'Awaiting review',
-              author: authorName,
-              content,
-              filename: file.name,
-              sha: file.sha,
-              source: 'pending-documents',
-            };
-          })
-        );
-      } catch (err) {
-        console.error('Error fetching pending documents:', err);
-        return [];
+          allDocs.push({
+            id: file.sha,
+            title: file.name.replace('.md', ''),
+            filename: file.name,
+            folder: folderName,
+            status: 'Approved',
+            author,
+            content,
+            reviewedAt: new Date().toLocaleDateString(),
+            uploadedAt: '-',
+            reviewComment: commentMatch ? commentMatch[1] : `Approved by ${username}`,
+          });
+        }
       }
-    };
 
-    const approvedDocs = await fetchApprovedFiles();
-    const pendingDocs = await fetchPendingFiles();
-    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-    const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
+      const stored = JSON.parse(localStorage.getItem('docs') || '[]');
+      const rejectedDocs = stored.filter(d => d.status === 'Rejected');
+      const allFinal = [...allDocs, ...rejectedDocs];
 
-    const filteredPendingDocs = pendingDocs.filter(
-      pd => !approvedDocs.some(ad => ad.filename === pd.filename)
-    );
-
-    const docs = [...filteredPendingDocs, ...approvedDocs, ...rejectedDocs];
-
-    setDocuments(docs);
-    localStorage.setItem('docs', JSON.stringify(docs));
-    window.dispatchEvent(new Event('storage'));
+      setDocuments(allFinal);
+      localStorage.setItem('docs', JSON.stringify(allFinal));
+    } catch (err) {
+      console.error('Error fetching documents:', err);
+    }
   };
 
   const deleteFromPending = async (filename, sha) => {
@@ -153,147 +135,132 @@ export default function ManagerDashboard() {
       console.error('Error deleting file from pending-documents:', err);
     }
   };
-  
-  // ✅ NEW DELETE FUNCTION FOR APPROVED DOCS
 
-  const deleteApprovedDoc = async (doc) => {
+const deleteApprovedDoc = async () => {
+  if (!docToDelete) return;
 
-    const path = `docs/documents/${doc.filename}`;
+  const path = `docs/${docToDelete.folder}/${docToDelete.filename}`;
+  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
-    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-
-    try {
-
-      const res = await fetch(url, {
-
-        method: 'DELETE',
-
-        headers: {
-
-          Authorization: `Bearer ${githubToken}`,
-
-          'Content-Type': 'application/json',
-
-        },
-
-        body: JSON.stringify({
-
-          message: `Delete approved document ${doc.filename}`,
-
-          sha: doc.sha,
-
-          committer: { name: 'Manager', email: 'manager@appsquadz.com' },
-
-        }),
-
-      });
-
-
-
-      if (!res.ok) {
-
-        console.error('Error deleting approved doc:', await res.json());
-
-        alert('Failed to delete the document from GitHub.');
-
-        return;
-
-      }
-
-
-
-      const updatedDocs = documents.filter(d => d.filename !== doc.filename);
-
-      setDocuments(updatedDocs);
-
-      localStorage.setItem('docs', JSON.stringify(updatedDocs));
-
-      alert(`✅ ${doc.filename} deleted successfully.`);
-
-    } catch (err) {
-
-      console.error('Delete failed:', err);
-
-      alert('Error deleting document.');
-
-    }
-
-  };
-
-  const saveApprovedToGitHub = async (doc) => {
-    const path = `docs/documents/${doc.title}.md`;
-    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
-    const check = await fetch(url, {
-      headers: { Authorization: `Bearer ${githubToken}` }
-    });
-
-    let sha;
-    if (check.status === 200) {
-      const confirm = window.confirm(`⚠️ ${doc.title}.md already exists. Overwrite?`);
-      if (!confirm) return false;
-      const data = await check.json();
-      sha = data.sha;
-    }
-
-    const approvedByComment = `<!-- approvedBy: ${username} -->\n`;
-    const content = btoa(unescape(encodeURIComponent(approvedByComment + doc.content)));
-
+  try {
     const res = await fetch(url, {
-      method: 'PUT',
+      method: 'DELETE',
       headers: {
         Authorization: `Bearer ${githubToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        message: `Manager approved ${doc.title}`,
-        content,
-        sha,
+        message: `Delete approved document ${docToDelete.filename}`,
+        sha: docToDelete.id,
         committer: { name: 'Manager', email: 'manager@appsquadz.com' },
-      })
+      }),
     });
 
     if (!res.ok) {
-      console.error('GitHub Push Error:', await res.json());
-      alert('Failed to push approved document to GitHub');
-      return false;
+      console.error('Error deleting approved doc:', await res.json());
+      toast.error('❌ Failed to delete the document from GitHub.');
+      return;
     }
 
-    await deleteFromPending(doc.filename, doc.sha);
-    return true;
+    const updatedDocs = documents.filter(d => d.filename !== docToDelete.filename);
+    setDocuments(updatedDocs);
+    localStorage.setItem('docs', JSON.stringify(updatedDocs));
+    toast.success(`✅ ${docToDelete.filename} deleted successfully.`);
+  } catch (err) {
+    console.error('Delete failed:', err);
+    toast.error('❌ Error deleting document.');
+  } finally {
+    setShowDeleteModal(false);
+    setDocToDelete(null);
+  }
+};
+
+
+
+  const saveApprovedToGitHub = async (doc) => {
+    const sourcePath = `pending-documents/${doc.folder}/${doc.title}.md`;
+    const destinationPath = `docs/${doc.folder}/${doc.title}.md`;
+    const comment = `<!-- reviewComment: ${doc.tempComment || 'Approved'} by ${username} -->`;
+    const newContent = `${doc.content.trim()}\n\n${comment}`;
+    const content = btoa(unescape(encodeURIComponent(newContent)));
+
+    const putUrl = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(destinationPath)}`;
+    const putRes = await fetch(putUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `token ${githubToken}`,
+      },
+      body: JSON.stringify({
+        message: `Approve document: ${doc.title}`,
+        content,
+        committer: {
+          name: username,
+          email: `${username}@users.noreply.github.com`,
+        },
+      }),
+    });
+
+    if (!putRes.ok) throw new Error(await putRes.text());
+
+    const getUrl = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(sourcePath)}`;
+    const getRes = await fetch(getUrl, { headers: { Authorization: `token ${githubToken}` } });
+    if (!getRes.ok) throw new Error(await getRes.text());
+    const fileData = await getRes.json();
+
+    const deleteRes = await fetch(getUrl, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `token ${githubToken}`,
+      },
+      body: JSON.stringify({
+        message: `Remove pending document after approval: ${doc.title}`,
+        sha: fileData.sha,
+        committer: {
+          name: username,
+          email: `${username}@users.noreply.github.com`,
+        },
+      }),
+    });
+
+    if (!deleteRes.ok) throw new Error(await deleteRes.text());
   };
 
   const handleApprove = async (index, comment) => {
     const doc = documents[index];
     setProcessingDocId(doc.id);
-    const delay = new Promise(resolve => setTimeout(resolve, 20000));
-    setShowWaitMessage(true);
+    setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
+    setShowWaitMessage(doc.id); // <-- set to current doc id
+
     setTimeout(() => {
-      setShowWaitMessage(false);
-      window.location.reload();
-    }, 40000);
+      setShowWaitMessage(null); // <-- clear after timeout
+      setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
+      // window.location.reload();
+    }, 60000);
 
-    const success = await saveApprovedToGitHub(doc);
-    if (!success) {
-      setProcessingDocId(null);
-      return;
+    try {
+      await saveApprovedToGitHub(doc);
+      await new Promise(resolve => setTimeout(resolve, 20000));
+
+      const updatedDoc = {
+        ...doc,
+        status: 'Approved',
+        reviewedAt: new Date().toLocaleDateString(),
+        reviewComment: `${comment || 'Approved'} by ${username}`,
+      };
+
+      const updatedDocs = [...documents];
+      updatedDocs[index] = updatedDoc;
+      setDocuments(updatedDocs);
+
+      const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
+      const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+      localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, updatedDoc]));
+    } catch (err) {
+      console.error('Approve failed:', err);
+      toast.error('❌ Approval failed.');
     }
-
-    await delay;
-
-    const updatedDoc = {
-      ...doc,
-      status: 'Approved',
-      reviewedAt: new Date().toLocaleDateString(),
-      reviewComment: comment || 'Approved',
-    };
-
-    const updatedDocs = [...documents];
-    updatedDocs[index] = updatedDoc;
-    setDocuments(updatedDocs);
-
-    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
-    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, updatedDoc]));
 
     setProcessingDocId(null);
   };
@@ -301,22 +268,33 @@ export default function ManagerDashboard() {
   const handleReject = async (index, comment) => {
     const doc = documents[index];
     setProcessingDocId(doc.id);
-    await deleteFromPending(doc.filename, doc.sha);
+    setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
 
-    const rejectedDoc = {
-      ...doc,
-      status: 'Rejected',
-      reviewedAt: new Date().toLocaleDateString(),
-      reviewComment: comment || 'Rejected',
-    };
+    try {
+      await deleteFromPending(doc.filename, doc.sha);
 
-    const updatedDocs = [...documents];
-    updatedDocs[index] = rejectedDoc;
-    setDocuments(updatedDocs);
+      const rejectedDoc = {
+        ...doc,
+        status: 'Rejected',
+        reviewedAt: new Date().toLocaleDateString(),
+        reviewComment: `${comment || 'Rejected'} by ${username}`,
+      };
 
-    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
-    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
+      const updatedDocs = [...documents];
+      updatedDocs[index] = rejectedDoc;
+      setDocuments(updatedDocs);
+
+      const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
+      const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+      localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
+    } catch (err) {
+      console.error('Reject failed:', err);
+      toast.error('❌ Rejection failed.');
+    }
+
+    setTimeout(() => {
+      setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
+    }, 60000);
 
     setProcessingDocId(null);
   };
@@ -357,13 +335,14 @@ export default function ManagerDashboard() {
           <h2>Documents</h2>
           {filteredDocs.length === 0 ? <p>No documents found.</p> : filteredDocs.map((doc, index) => {
             const isProcessing = processingDocId === doc.id;
+            const isDisabled = !!disabledButtons[doc.id];
             return (
               <div key={index} className={styles.documentCard}>
                 <div className={styles.docHeader}>
                   {doc.title} {doc.status === 'Pending' && '🟡'}
                 </div>
                 <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
-
+                <div className={styles.docMeta}> 📂 Folder: <strong>{doc.folder}</strong></div>
                 <div className={styles.actionButtons}>
                   <button className={styles.approveBtn} onClick={() => setExpandedDocId(expandedDocId === doc.id ? null : doc.id)}>
                     {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
@@ -386,7 +365,7 @@ export default function ManagerDashboard() {
                   <div className={styles.processing}>⏳ Processing...</div>
                 )}
 
-                {showWaitMessage && (
+                {showWaitMessage === doc.id && (  /* <-- changed here */
                   <div className={styles.waitMessage}>This will take some time, please wait...</div>
                 )}
 
@@ -398,8 +377,8 @@ export default function ManagerDashboard() {
                       setDocuments(updatedDocs);
                     }} />
                     <div className={styles.actionButtons}>
-                      <button className={styles.approveBtn} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
-                      <button className={styles.rejectBtn} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
+                      <button className={styles.approveBtn} disabled={isDisabled} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
+                      <button className={styles.rejectBtn} disabled={isDisabled} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
                     </div>
                   </>
                 )}
@@ -411,22 +390,42 @@ export default function ManagerDashboard() {
                 )}
 
                 {doc.status === 'Approved' && (
-                  <button
-                    className={styles.rejectBtn}
-                    style={{ marginTop: '10px', backgroundColor: '#dc2626' }}
-                    onClick={() => {
-                      const confirm = window.confirm(`Are you sure you want to delete "${doc.title}"?`);
-                      if (confirm) deleteApprovedDoc(doc);
-                    }}
-                  >
-                    🗑️ Delete Document
-                  </button>
-                )}
+  <button
+    className={styles.rejectBtn}
+    style={{ marginTop: '10px', backgroundColor: '#dc2626' }}
+    onClick={() => {
+      setDocToDelete(doc);
+      setShowDeleteModal(true);
+    }}
+  >
+    🗑️ Delete 
+  </button>
+)}
               </div>
             );
           })}
         </section>
       </main>
+      <ToastContainer position="top-right" autoClose={4000} />
+      {showDeleteModal && (
+  <div className={styles.modalOverlay}>
+    <div className={styles.modalContent}>
+      <h3>Confirm Deletion</h3>
+      <p>Are you sure you want to delete <strong>{docToDelete?.title}</strong>?</p>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+        <button className={styles.rejectBtn} onClick={() => {
+          setShowDeleteModal(false);
+          setDocToDelete(null);
+        }}>
+          Cancel
+        </button>
+        <button className={styles.approveBtn} onClick={deleteApprovedDoc}>
+          Confirm
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </Layout>
   );
 }

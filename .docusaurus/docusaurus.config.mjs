@@ -376,7 +376,7 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
+    "githubToken": "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",
     "authorUsers": [
       {
         "email": "saksham.verma@appsquadz.co",
