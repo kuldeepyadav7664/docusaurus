@@ -266,38 +266,66 @@ const deleteApprovedDoc = async () => {
   };
 
   const handleReject = async (index, comment) => {
-    const doc = documents[index];
-    setProcessingDocId(doc.id);
-    setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
+  const doc = documents[index];
+  setProcessingDocId(doc.id);
+  setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
 
-    try {
-      await deleteFromPending(doc.filename, doc.sha);
+  try {
+    const rejectionComment = `<!-- reviewComment: ${comment || 'Rejected'} by ${username} -->`;
+    const contentWithComment = `${doc.content.trim()}\n\n${rejectionComment}`;
+    const encodedContent = btoa(unescape(encodeURIComponent(contentWithComment)));
+    const rejectedPath = `Rejected/${doc.folder}/${doc.filename}`;
 
-      const rejectedDoc = {
-        ...doc,
-        status: 'Rejected',
-        reviewedAt: new Date().toLocaleDateString(),
-        reviewComment: `${comment || 'Rejected'} by ${username}`,
-      };
+    // Upload the rejected file to Rejected folder
+    await fetch(`https://api.github.com/repos/${repo}/contents/${encodeURIComponent(rejectedPath)}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `token ${githubToken}`,
+      },
+      body: JSON.stringify({
+        message: `Reject document: ${doc.title}`,
+        content: encodedContent,
+        committer: {
+          name: username,
+          email: `${username}@users.noreply.github.com`,
+        },
+      }),
+    });
 
-      const updatedDocs = [...documents];
-      updatedDocs[index] = rejectedDoc;
-      setDocuments(updatedDocs);
+    // Delete from pending-documents
+    await deleteFromPending(`${doc.folder}/${doc.filename}`, doc.sha);
 
-      const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-      const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
-      localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
-    } catch (err) {
-      console.error('Reject failed:', err);
-      toast.error('❌ Rejection failed.');
-    }
+    toast.success('✅ Rejected and moved to Rejected folder.');
 
-    setTimeout(() => {
-      setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
-    }, 60000);
+    // Update state (optional localStorage)
+    const rejectedDoc = {
+      ...doc,
+      status: 'Rejected',
+      reviewedAt: new Date().toLocaleDateString(),
+      reviewComment: `${comment || 'Rejected'} by ${username}`,
+    };
 
-    setProcessingDocId(null);
-  };
+    const updatedDocs = [...documents];
+    updatedDocs[index] = rejectedDoc;
+    setDocuments(updatedDocs);
+
+    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
+    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
+
+  } catch (err) {
+    console.error('Reject failed:', err);
+    toast.error('❌ Rejection failed.');
+  }
+
+  setTimeout(() => {
+    setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
+  }, 60000);
+
+  setProcessingDocId(null);
+};
+
 
   const filteredDocs = filter === 'All' ? documents : documents.filter(d => d.status === filter);
   const getCount = status => documents.filter(d => d.status === status).length;
