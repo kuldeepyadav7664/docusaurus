@@ -100,11 +100,6 @@ export default {
           "position": "right",
           "className": "header-github-link",
           "aria-label": "GitHub repository"
-        },
-        {
-          "to": "/login",
-          "label": "Login",
-          "position": "right"
         }
       ],
       "hideOnScroll": false
@@ -376,7 +371,7 @@ export default {
     }
   },
   "customFields": {
-    "githubToken": "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",
+    "githubToken": "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",
     "authorUsers": [
       {
         "email": "saksham.verma@appsquadz.co",

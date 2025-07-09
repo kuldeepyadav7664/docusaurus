@@ -275,7 +275,6 @@ function AuthorDashboard() {
               Welcome back, <span style={{ color: '#10b981', fontSize: '30px' }}>{username}</span>
             </h3>
           </div>
-          <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>
         </div>
 
         <div className={styles.statsRow}>

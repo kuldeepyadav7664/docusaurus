@@ -313,7 +313,6 @@ const deleteApprovedDoc = async () => {
             </h3>
             <p className={styles.subheading}>Review and manage documentation submissions</p>
           </div>
-          <button onClick={() => { localStorage.removeItem('role'); history.push('/login'); }} className={styles.rejectBtn}>Logout</button>
         </div>
 
         <div className={styles.statsRow}>

@@ -85,11 +85,6 @@ const config = {
             className: 'header-github-link',
             'aria-label': 'GitHub repository',
           },
-          {
-            to: '/login',
-            label: 'Login',
-            position: 'right',
-          },
         ],
       },
       footer: {

@@ -27,6 +27,7 @@ export default function Login() {
 
     if (matchedUser) {
       const username = matchedUser.email.split('@')[0];
+      localStorage.setItem('authToken', 'dummy-token');
       localStorage.setItem('role', role.toLowerCase());
       localStorage.setItem('username', username);
       history.push(`/${role.toLowerCase()}`);

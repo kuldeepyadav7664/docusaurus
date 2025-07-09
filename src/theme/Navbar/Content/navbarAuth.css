@@ -1,0 +1,40 @@
+/* Group wrapper for username and logout button */
+.navbar-auth-group {
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+/* Hide on mobile */
+@media (max-width: 996px) {
+  .navbar-auth-group {
+    display: none;
+  }
+}
+
+.navbar-auth-username {
+  margin-right: 10px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--ifm-navbar-link-color);
+}
+
+.navbar-auth-button {
+  padding: 6px 14px;
+  background-color: #2e8555;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-left: 8px;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-auth-button:hover {
+  background-color: #256d45;
+}
