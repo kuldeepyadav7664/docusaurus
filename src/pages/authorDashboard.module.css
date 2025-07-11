@@ -12,12 +12,19 @@
 
 .rejectBtn {
   background: #dc2626;
-  border: none;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.25rem;
-  cursor: pointer;
-  font-weight: bold;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: none;
+    margin: inherit;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+.rejectBtn:hover {
+  background: #ae1717;
+  transform: scale(1.05);
+  box-shadow: 0 0 20px #ff0000;
 }
 
 .heading {
@@ -352,4 +359,18 @@
 
 .modalContent button {
   min-width: 100px;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+
+.noDocs {
+  text-align: center;
+  font-style: italic;
+  padding: 1rem;
+  color: #666;
 }

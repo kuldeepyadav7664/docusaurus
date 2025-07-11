@@ -14,10 +14,11 @@ export default function ManagerDashboard() {
   const [expandedDocId, setExpandedDocId] = useState(null);
   const [processingDocId, setProcessingDocId] = useState(null);
   const [showWaitMessage, setShowWaitMessage] = useState(null);
+  const [comments, setComments] = useState({});
   const [disabledButtons, setDisabledButtons] = useState({});
   // For custom delete confirmation modal
-const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [docToDelete, setDocToDelete] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
 
   const history = useHistory();
   const { siteConfig } = useDocusaurusContext();
@@ -87,7 +88,9 @@ const [docToDelete, setDocToDelete] = useState(null);
           const contentRes = await fetch(file.download_url);
           const content = await contentRes.text();
           const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
-          const commentMatch = content.match(/<!--\s*reviewComment:\s*(.*?)\s*-->/);
+          const commentMatch = content.match(/<!--\s*reviewComment:\s*([\s\S]*?)\s*-->/);
+          const reviewerMatch = content.match(/<!--\s*reviewer:\s*(.*?)\s*-->/);
+          const reviewer = reviewerMatch ? reviewerMatch[1] : 'Unknown';
           const author = authorMatch ? authorMatch[1] : 'Unknown';
 
           allDocs.push({
@@ -100,24 +103,63 @@ const [docToDelete, setDocToDelete] = useState(null);
             content,
             reviewedAt: new Date().toLocaleDateString(),
             uploadedAt: '-',
-            reviewComment: commentMatch ? commentMatch[1] : `Approved by ${username}`,
+            reviewComment: commentMatch ? commentMatch[1] : '',
+            reviewer,
           });
         }
       }
 
-      const stored = JSON.parse(localStorage.getItem('docs') || '[]');
-      const rejectedDocs = stored.filter(d => d.status === 'Rejected');
-      const allFinal = [...allDocs, ...rejectedDocs];
+      // Fetch rejected documents from GitHub
+      const rejectedRes = await fetch(`https://api.github.com/repos/${repo}/contents/Rejected`, {
+        headers: { Authorization: `token ${githubToken}` },
+      });
+      const rejectedFolders = await rejectedRes.json();
+      const subRejectedFolders = rejectedFolders.filter(item => item.type === 'dir');
 
-      setDocuments(allFinal);
-      localStorage.setItem('docs', JSON.stringify(allFinal));
+      for (const folder of subRejectedFolders) {
+        const folderName = folder.name;
+        const filesRes = await fetch(`https://api.github.com/repos/${repo}/contents/Rejected/${folderName}`, {
+          headers: { Authorization: `token ${githubToken}` },
+        });
+        const files = await filesRes.json();
+        const mdFiles = files.filter(file => file.name.endsWith('.md'));
+
+        for (const file of mdFiles) {
+          const contentRes = await fetch(file.download_url);
+          const content = await contentRes.text();
+          const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
+          const commentMatch = content.match(/<!--\s*reviewComment:\s*([\s\S]*?)\s*-->/);
+          const reviewerMatch = content.match(/<!--\s*reviewer:\s*(.*?)\s*-->/);
+          const reviewer = reviewerMatch ? reviewerMatch[1] : 'Unknown';
+          const author = authorMatch ? authorMatch[1] : 'Unknown';
+
+          allDocs.push({
+            id: file.sha,
+            title: file.name.replace('.md', ''),
+            filename: file.name,
+            folder: folderName,
+            status: 'Rejected',
+            author,
+            content,
+            reviewedAt: new Date().toLocaleDateString(),
+            uploadedAt: '-',
+            reviewComment: commentMatch ? commentMatch[1] : '',
+            reviewer,
+          });
+        }
+      }
+
+      setDocuments(allDocs);
+      localStorage.setItem('docs', JSON.stringify(allDocs));
+
+
     } catch (err) {
       console.error('Error fetching documents:', err);
     }
   };
 
-  const deleteFromPending = async (filename, sha) => {
-    const url = `https://api.github.com/repos/${repo}/contents/pending-documents/${filename}`;
+  const deleteFromPending = async (fullPath, sha) => {
+    const url = `https://api.github.com/repos/${repo}/contents/${fullPath}`;
     try {
       await fetch(url, {
         method: 'DELETE',
@@ -126,7 +168,7 @@ const [docToDelete, setDocToDelete] = useState(null);
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          message: `Remove ${filename} after review`,
+          message: `Remove ${fullPath} after rejection`,
           sha,
           committer: { name: 'Manager', email: 'manager@appsquadz.com' },
         })
@@ -135,52 +177,90 @@ const [docToDelete, setDocToDelete] = useState(null);
       console.error('Error deleting file from pending-documents:', err);
     }
   };
+  fetchDocuments();
 
-const deleteApprovedDoc = async () => {
-  if (!docToDelete) return;
+  const deleteApprovedDoc = async () => {
+    if (!docToDelete) return;
 
-  const path = `docs/${docToDelete.folder}/${docToDelete.filename}`;
-  const url = `https://api.github.com/repos/${repo}/contents/${path}`;
+    const path = `docs/${docToDelete.folder}/${docToDelete.filename}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${path}`;
 
-  try {
-    const res = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${githubToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        message: `Delete approved document ${docToDelete.filename}`,
-        sha: docToDelete.id,
-        committer: { name: 'Manager', email: 'manager@appsquadz.com' },
-      }),
-    });
+    try {
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${githubToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Delete approved document ${docToDelete.filename}`,
+          sha: docToDelete.id,
+          committer: { name: 'Manager', email: 'manager@appsquadz.com' },
+        }),
+      });
 
-    if (!res.ok) {
-      console.error('Error deleting approved doc:', await res.json());
-      toast.error('❌ Failed to delete the document from GitHub.');
-      return;
+      if (!res.ok) {
+        console.error('Error deleting approved doc:', await res.json());
+        toast.error('❌ Failed to delete the document from GitHub.');
+        return;
+      }
+
+      const updatedDocs = documents.filter(d => d.filename !== docToDelete.filename);
+      setDocuments(updatedDocs);
+      localStorage.setItem('docs', JSON.stringify(updatedDocs));
+      toast.success(`✅ ${docToDelete.filename} deleted successfully.`);
+    } catch (err) {
+      console.error('Delete failed:', err);
+      toast.error('❌ Error deleting document.');
+    } finally {
+      setShowDeleteModal(false);
+      setDocToDelete(null);
     }
+  };
 
-    const updatedDocs = documents.filter(d => d.filename !== docToDelete.filename);
-    setDocuments(updatedDocs);
-    localStorage.setItem('docs', JSON.stringify(updatedDocs));
-    toast.success(`✅ ${docToDelete.filename} deleted successfully.`);
-  } catch (err) {
-    console.error('Delete failed:', err);
-    toast.error('❌ Error deleting document.');
-  } finally {
-    setShowDeleteModal(false);
-    setDocToDelete(null);
-  }
-};
+  const deleteRejectedDoc = async () => {
+    if (!rejectedToDelete) return;
 
+    const path = `Rejected/${rejectedToDelete.folder}/${rejectedToDelete.filename}`;
+    const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`;
+
+    try {
+      const res = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `token ${githubToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Delete rejected document ${rejectedToDelete.filename}`,
+          sha: rejectedToDelete.id,
+          committer: { name: 'Manager', email: 'manager@appsquadz.com' },
+        }),
+      });
+
+      if (!res.ok) {
+        toast.error('❌ Failed to delete rejected document.');
+        return;
+      }
+
+      const updatedDocs = documents.filter(d => d.filename !== rejectedToDelete.filename || d.folder !== rejectedToDelete.folder);
+      setDocuments(updatedDocs);
+      localStorage.setItem('docs', JSON.stringify(updatedDocs));
+      toast.success(`✅ Rejected document ${rejectedToDelete.filename} deleted.`);
+    } catch (err) {
+      console.error('Error deleting rejected doc:', err);
+      toast.error('❌ Error deleting rejected document.');
+    } finally {
+      setRejectedToDelete(null);
+      setShowRejectedDeleteModal(false);
+    }
+  };
 
 
   const saveApprovedToGitHub = async (doc) => {
     const sourcePath = `pending-documents/${doc.folder}/${doc.title}.md`;
     const destinationPath = `docs/${doc.folder}/${doc.title}.md`;
-    const comment = `<!-- reviewComment: ${doc.tempComment || 'Approved'} by ${username} -->`;
+    const comment = `<!-- reviewComment: ${doc.tempComment || 'Approved'} -->\n<!-- reviewer: ${username} -->`;
     const newContent = `${doc.content.trim()}\n\n${comment}`;
     const content = btoa(unescape(encodeURIComponent(newContent)));
 
@@ -240,6 +320,7 @@ const deleteApprovedDoc = async () => {
     }, 60000);
 
     try {
+      doc.tempComment = comment; // 🔥 inject latest comment
       await saveApprovedToGitHub(doc);
       await new Promise(resolve => setTimeout(resolve, 20000));
 
@@ -266,69 +347,83 @@ const deleteApprovedDoc = async () => {
   };
 
   const handleReject = async (index, comment) => {
-  const doc = documents[index];
-  setProcessingDocId(doc.id);
-  setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
+    const doc = documents[index];
+    const commentToUse = comment?.trim() || doc.tempComment?.trim() || 'Rejected';
+    setProcessingDocId(doc.id);
+    setDisabledButtons(prev => ({ ...prev, [doc.id]: true }));
 
-  try {
-    const rejectionComment = `<!-- reviewComment: ${comment || 'Rejected'} by ${username} -->`;
-    const contentWithComment = `${doc.content.trim()}\n\n${rejectionComment}`;
-    const encodedContent = btoa(unescape(encodeURIComponent(contentWithComment)));
-    const rejectedPath = `Rejected/${doc.folder}/${doc.filename}`;
+    try {
+      const finalComment = comment || doc.tempComment || 'Rejected';
+      const commentToUse = comment?.trim() || doc.tempComment?.trim() || 'Rejected';
+      const markdownBody = doc.content.replace(/<!-- reviewComment:.*?-->\n?/g, '')
+        .replace(/<!-- reviewer:.*?-->\n?/g, '');
 
-    // Upload the rejected file to Rejected folder
-    await fetch(`https://api.github.com/repos/${repo}/contents/${encodeURIComponent(rejectedPath)}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `token ${githubToken}`,
-      },
-      body: JSON.stringify({
-        message: `Reject document: ${doc.title}`,
-        content: encodedContent,
-        committer: {
-          name: username,
-          email: `${username}@users.noreply.github.com`,
+      const contentWithComment = `${markdownBody.trim()}\n\n<!-- reviewComment: ${commentToUse} -->\n<!-- reviewer: ${username} -->`;
+
+      const encodedContent = btoa(unescape(encodeURIComponent(contentWithComment)));
+      const rejectedPath = `Rejected/${doc.folder}/${doc.filename}`;
+
+      // Upload the rejected file to Rejected folder
+      await fetch(`https://api.github.com/repos/${repo}/contents/${encodeURIComponent(rejectedPath)}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `token ${githubToken}`,
         },
-      }),
-    });
+        body: JSON.stringify({
+          message: `Reject document: ${doc.title}`,
+          content: encodedContent,
+          committer: {
+            name: username,
+            email: `${username}@users.noreply.github.com`,
+          },
+        }),
+      });
 
-    // Delete from pending-documents
-    await deleteFromPending(`${doc.folder}/${doc.filename}`, doc.sha);
-
-    toast.success('✅ Rejected and moved to Rejected folder.');
-
-    // Update state (optional localStorage)
-    const rejectedDoc = {
-      ...doc,
-      status: 'Rejected',
-      reviewedAt: new Date().toLocaleDateString(),
-      reviewComment: `${comment || 'Rejected'} by ${username}`,
-    };
-
-    const updatedDocs = [...documents];
-    updatedDocs[index] = rejectedDoc;
-    setDocuments(updatedDocs);
-
-    const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
-    const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
-    localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
-
-  } catch (err) {
-    console.error('Reject failed:', err);
-    toast.error('❌ Rejection failed.');
-  }
-
-  setTimeout(() => {
-    setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
-  }, 60000);
-
-  setProcessingDocId(null);
-};
+      // Delete from pending-documents
+      await deleteFromPending(`pending-documents/${doc.folder}/${doc.filename}`, doc.id);
 
 
-  const filteredDocs = filter === 'All' ? documents : documents.filter(d => d.status === filter);
+      toast.success('✅ Rejected and moved to Rejected folder.');
+
+      // Update state (optional localStorage)
+      const rejectedDoc = {
+        ...doc,
+        status: 'Rejected',
+        reviewedAt: new Date().toLocaleDateString(),
+        reviewComment: (comment?.trim() || doc.tempComment?.trim() || 'Rejected'),
+        rejected: true  // 👈 Add this flag
+      };
+
+      const updatedDocs = documents
+        .filter((d, i) => i !== index) // remove original pending doc
+        .concat(rejectedDoc); // add rejected version
+      setDocuments(updatedDocs);
+
+      const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
+      const updatedStoredDocs = storedDocs.filter(d => d.filename !== doc.filename);
+      localStorage.setItem('docs', JSON.stringify([...updatedStoredDocs, rejectedDoc]));
+
+    } catch (err) {
+      console.error('Reject failed:', err);
+      toast.error('❌ Rejection failed.');
+    }
+
+    setTimeout(() => {
+      setDisabledButtons(prev => ({ ...prev, [doc.id]: false }));
+    }, 60000);
+
+    setProcessingDocId(null);
+  };
+
+
+  const filteredDocs = filter === 'All'
+    ? documents.filter(d => d.status !== 'Rejected')  // exclude rejected
+    : documents.filter(d => d.status === filter);
   const getCount = status => documents.filter(d => d.status === status).length;
+  const rejectedDocs = documents.filter(doc => doc.status === 'Rejected');
+  const [rejectedToDelete, setRejectedToDelete] = useState(null);
+  const [showRejectedDeleteModal, setShowRejectedDeleteModal] = useState(false);
 
   return (
     <Layout title="Manager Dashboard">
@@ -370,6 +465,12 @@ const deleteApprovedDoc = async () => {
                 </div>
                 <div className={styles.docMeta}>Author: {doc.author} | Uploaded: {doc.uploadedAt} | Reviewed: {doc.reviewedAt}</div>
                 <div className={styles.docMeta}> 📂 Folder: <strong>{doc.folder}</strong></div>
+                {(doc.status === 'Approved' || doc.status === 'Rejected') && doc.reviewComment && (
+                  <div style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
+                    <strong>📝Comment:</strong> {doc.reviewComment} <br />
+                    <strong>Reviewed By:</strong> {doc.reviewer}
+                  </div>
+                )}
                 <div className={styles.actionButtons}>
                   <button className={styles.approveBtn} onClick={() => setExpandedDocId(expandedDocId === doc.id ? null : doc.id)}>
                     {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
@@ -382,6 +483,18 @@ const deleteApprovedDoc = async () => {
                     a.download = `${doc.title}.md`;
                     a.click();
                   }}>⬇️ Download</button>
+                  {doc.status === 'Approved' && (
+                    <button
+                      className={styles.rejectBtn}
+                      style={{ backgroundColor: '#dc2626' }}
+                      onClick={() => {
+                        setDocToDelete(doc);
+                        setShowDeleteModal(true);
+                      }}
+                    >
+                      🗑️ Delete
+                    </button>
+                  )}
                 </div>
 
                 {expandedDocId === doc.id && (
@@ -398,61 +511,146 @@ const deleteApprovedDoc = async () => {
 
                 {doc.status === 'Pending' && !isProcessing && (
                   <>
-                    <textarea className={styles.reviewTextarea} placeholder="Add comments..." onChange={(e) => {
-                      const updatedDocs = [...documents];
-                      updatedDocs[index].tempComment = e.target.value;
-                      setDocuments(updatedDocs);
-                    }} />
+                    <textarea
+                      className={styles.reviewTextarea}
+                      placeholder="Add comments..."
+                      value={comments[doc.id] || ''}
+                      onChange={(e) => {
+                        setComments(prev => ({ ...prev, [doc.id]: e.target.value }));
+                      }}
+                    />
                     <div className={styles.actionButtons}>
-                      <button className={styles.approveBtn} disabled={isDisabled} onClick={() => handleApprove(index, doc.tempComment || '')}>✅ Approve</button>
-                      <button className={styles.rejectBtn} disabled={isDisabled} onClick={() => handleReject(index, doc.tempComment || '')}>❌ Reject</button>
+                      <button
+                        className={styles.approveBtn}
+                        disabled={isDisabled}
+                        onClick={() => handleApprove(index, comments[doc.id] || '')}
+                      >
+                        ✅ Approve
+                      </button>
+                      <button
+                        className={styles.rejectBtn}
+                        disabled={isDisabled}
+                        onClick={() => {
+                          const comment = comments[doc.id]?.trim() || 'Rejected';
+                          handleReject(index, comment);
+                        }}
+                      >
+                        ❌ Reject
+                      </button>
                     </div>
                   </>
                 )}
 
-                {(doc.status === 'Approved' || doc.status === 'Rejected') && doc.reviewComment && (
-                  <div style={{ marginTop: '0.5rem', fontStyle: 'italic' }}>
-                    Manager Comment: {doc.reviewComment}
-                  </div>
-                )}
+                
 
-                {doc.status === 'Approved' && (
-  <button
-    className={styles.rejectBtn}
-    style={{ marginTop: '10px', backgroundColor: '#dc2626' }}
-    onClick={() => {
-      setDocToDelete(doc);
-      setShowDeleteModal(true);
-    }}
-  >
-    🗑️ Delete 
-  </button>
-)}
+
               </div>
             );
           })}
         </section>
+        {rejectedDocs.length > 0 && (
+          <section className={styles.section}>
+            <h2 className={styles.docHeader} style={{ color: 'crimson', display: 'flex', alignItems: 'center' }}>
+              ❌ Rejected Documents
+            </h2>
+            {rejectedDocs.map((doc, index) => (
+              <div key={index} className={styles.documentCard}>
+                <div className={styles.docHeader}>
+                  {doc.title}
+                </div>
+                <div className={styles.docMeta}>
+                  Author: {doc.author} | Reviewed: {doc.reviewedAt}
+                </div>
+                <div className={styles.docMeta}>
+                  📂 Folder: <strong>{doc.folder}</strong>
+                </div>
+                <div className={styles.docMeta}>
+                  <strong>📝 Comment:</strong> <i>{doc.reviewComment}</i> <br />
+                  <strong>Reviewed By:</strong> {doc.reviewer}
+                </div>
+                <div className={styles.actionButtons}>
+                  <button
+                    className={styles.approveBtn}
+                    onClick={() => setExpandedDocId(expandedDocId === doc.id ? null : doc.id)}
+                  >
+                    {expandedDocId === doc.id ? 'Hide Document' : 'View Document'}
+                  </button>
+                  <button
+                    className={styles.rejectBtn}
+                    onClick={() => {
+                      const blob = new Blob([doc.content], { type: 'text/markdown' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `${doc.title}.md`;
+                      a.click();
+                    }}
+                  >
+                    ⬇️ Download
+                  </button>
+                  <button
+                    className={styles.rejectBtn}
+                    style={{ backgroundColor: '#dc2626' }}
+                    onClick={() => {
+                      setRejectedToDelete(doc);
+                      setShowRejectedDeleteModal(true);
+                    }}
+                  >
+                    🗑️ Delete
+                  </button>
+
+                </div>
+                {expandedDocId === doc.id && (
+                  <pre className={styles.docPreview}>{doc.content}</pre>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
       </main>
       <ToastContainer position="top-right" autoClose={4000} />
       {showDeleteModal && (
-  <div className={styles.modalOverlay}>
-    <div className={styles.modalContent}>
-      <h3>Confirm Deletion</h3>
-      <p>Are you sure you want to delete <strong>{docToDelete?.title}</strong>?</p>
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <button className={styles.rejectBtn} onClick={() => {
-          setShowDeleteModal(false);
-          setDocToDelete(null);
-        }}>
-          Cancel
-        </button>
-        <button className={styles.approveBtn} onClick={deleteApprovedDoc}>
-          Confirm
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete <strong>{docToDelete?.title}</strong>?</p>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button className={styles.rejectBtn} onClick={() => {
+                setShowDeleteModal(false);
+                setDocToDelete(null);
+              }}>
+                Cancel
+              </button>
+              <button className={styles.approveBtn} onClick={deleteApprovedDoc}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRejectedDeleteModal && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete <strong>{rejectedToDelete?.title}</strong>?</p>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+              <button className={styles.rejectBtn} onClick={() => {
+                setShowRejectedDeleteModal(false);
+                setRejectedToDelete(null);
+              }}>
+                Cancel
+              </button>
+              <button className={styles.approveBtn} onClick={deleteRejectedDoc}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
+
     </Layout>
   );
 }

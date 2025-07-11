@@ -37,6 +37,7 @@ function AuthorDashboard() {
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingUpload, setPendingUpload] = useState(null);
+  const [rejectedDocuments, setRejectedDocuments] = useState([]);
 
   const showToast = (message, type = 'success') => {
     setToastMessage(message);
@@ -55,6 +56,7 @@ function AuthorDashboard() {
     if (folders.length === 0) return;
 
     fetchDocuments();
+    fetchRejectedDocuments();
 
     const interval = setInterval(() => {
       const currentUsername = localStorage.getItem('username');
@@ -62,6 +64,7 @@ function AuthorDashboard() {
         window.location.reload();
       } else {
         fetchDocuments();
+        fetchRejectedDocuments();
       }
     }, 10000);
 
@@ -102,6 +105,10 @@ function AuthorDashboard() {
           const commentMatch = content.match(/<!--\s*reviewComment:\s*(.*?)\s*-->/);
           const reviewComment = commentMatch ? commentMatch[1] : (status === 'Approved' ? 'Approved' : (status === 'Rejected' ? 'Rejected' : 'Awaiting review'));
 
+          const reviewerMatch = content.match(/<!--\s*reviewer:\s*(.*?)\s*-->/);
+const reviewer = reviewerMatch ? reviewerMatch[1] : 'Unknown';
+
+
           const commitRes = await fetch(`https://api.github.com/repos/${repo}/commits?path=${file.path}&per_page=1`, {
             headers: { Authorization: `Bearer ${githubToken}` },
           });
@@ -117,6 +124,7 @@ function AuthorDashboard() {
             uploadedAt,
             reviewedAt: status !== 'Pending' ? new Date().toLocaleDateString() : '-',
             reviewComment,
+            reviewer,
             author: fileAuthor,
             content,
             filename: file.name,
@@ -155,15 +163,77 @@ function AuthorDashboard() {
       const storedDocs = JSON.parse(localStorage.getItem('docs') || '[]');
       const rejectedDocs = storedDocs.filter(d => d.status === 'Rejected');
 
-      const docs = [...pendingFolders.flat(), ...approvedDocs, ...rejectedDocs];
+      const rejectedFetched = await fetchRejectedDocuments(true); // pass flag to return data
+      const docs = [...pendingFolders.flat(), ...approvedDocs];
 
-      setDocuments(docs);
+      const filteredDocs = docs.filter(d => d.status !== 'Rejected');
+setDocuments(filteredDocs);
       localStorage.setItem('docs', JSON.stringify(docs));
       window.dispatchEvent(new Event('storage'));
     } catch (err) {
       console.error('Error fetching documents:', err);
     }
   };
+
+  const fetchRejectedDocuments = async (returnOnly = false) => {
+    try {
+      const rejectedRes = await fetch(`https://api.github.com/repos/${repo}/contents/Rejected`, {
+        headers: { Authorization: `Bearer ${githubToken}` },
+      });
+
+      const rejectedContents = await rejectedRes.json();
+      const subfolders = rejectedContents.filter(item => item.type === 'dir'); // ✅ Only folders
+
+      const allDocs = [];
+
+      for (const folder of subfolders) {
+        const filesRes = await fetch(folder.url, {
+          headers: { Authorization: `Bearer ${githubToken}` },
+        });
+        const files = await filesRes.json();
+
+        const mdFiles = files.filter(file => file.name.endsWith('.md'));
+
+        for (const file of mdFiles) {
+          const contentRes = await fetch(file.download_url);
+          const content = await contentRes.text();
+
+          const authorMatch = content.match(/<!--\s*author:\s*(.*?)\s*-->/);
+          const commentMatch = content.match(/<!--\s*reviewComment:\s*(.*?)\s*-->/);
+          const reviewerMatch = content.match(/<!--\s*reviewer:\s*(.*?)\s*-->/);
+const reviewer = reviewerMatch ? reviewerMatch[1] : 'Unknown';
+
+          const fileAuthor = authorMatch ? authorMatch[1] : 'Unknown';
+
+          if (fileAuthor === username) {
+            allDocs.push({
+              id: file.sha,
+              sha: file.sha,
+              title: file.name.replace('.md', ''),
+              filename: file.name,
+              folder: folder.name,
+              content,
+              author: fileAuthor,
+              status: 'Rejected',
+              reviewComment: commentMatch ? commentMatch[1] : '',
+              reviewer,
+              uploadedAt: '-',
+              reviewedAt: new Date().toLocaleDateString()
+            });
+          }
+        }
+      }
+
+      if (returnOnly) return allDocs;
+      setRejectedDocuments(allDocs);
+    } catch (err) {
+      console.error('Error fetching rejected documents:', err);
+      if (returnOnly) return [];
+    }
+  };
+
+
+
 
   const handleUpload = async () => {
     if (!file) return showToast('Please select a Markdown (.md) file', 'warning');
@@ -256,7 +326,61 @@ function AuthorDashboard() {
 
   const toggleView = (docId) => setExpandedDocId(expandedDocId === docId ? null : docId);
 
-  const statusCounts = documents.reduce(
+  const deleteRejectedDoc = async (doc) => {
+    const rejectedPath = `Rejected/${doc.folder}/${doc.filename}`;
+    const pendingPath = `pending-documents/${doc.folder}/${doc.filename}`;
+
+    const deleteFromGitHub = async (path, sha) => {
+      const url = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(path)}`;
+      return fetch(url, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${githubToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Delete document: ${path}`,
+          sha,
+          committer: {
+            name: username,
+            email: `${username.toLowerCase()}@appsquadz.com`,
+          },
+        }),
+      });
+    };
+
+    try {
+      // Step 1: Delete from Rejected
+      const res1 = await deleteFromGitHub(rejectedPath, doc.sha);
+      if (!res1.ok) throw new Error('Failed to delete from Rejected');
+
+      // Step 2: Try deleting from pending-documents too (may not exist if already deleted manually)
+      const pendingUrl = `https://api.github.com/repos/${repo}/contents/${encodeURIComponent(pendingPath)}`;
+      const pendingMeta = await fetch(pendingUrl, {
+        headers: { Authorization: `Bearer ${githubToken}` },
+      });
+
+      if (pendingMeta.ok) {
+        const pendingDoc = await pendingMeta.json();
+        const res2 = await deleteFromGitHub(pendingPath, pendingDoc.sha);
+        if (!res2.ok) console.warn('Could not delete from pending-documents');
+      }
+
+      showToast(`🗑️ Deleted ${doc.filename}`);
+      setRejectedDocuments(prev => prev.filter(d => d.filename !== doc.filename));
+      await fetchRejectedDocuments();
+      fetchDocuments(); // Update local state
+    } catch (err) {
+      console.error('Delete rejected doc failed:', err);
+      showToast('❌ Failed to delete rejected document', 'error');
+    }
+  };
+
+
+
+ const allDocs = [...documents, ...rejectedDocuments];
+
+  const statusCounts = allDocs.reduce(
     (acc, doc) => {
       acc.total++;
       acc[doc.status.toLowerCase()]++;
@@ -315,6 +439,9 @@ function AuthorDashboard() {
 
         <section className={styles.documentSection}>
           <h2>Documents</h2>
+          {documents.length === 0 && (
+  <div className={styles.noDocs}>No documents uploaded yet.</div>
+)}
           {documents.map((doc, index) => (
             <div key={index} className={styles.documentCard}>
               <div className={styles.docHeader}>
@@ -330,7 +457,16 @@ function AuthorDashboard() {
                   📂 Folder: <strong>{doc.folder}</strong>
                 </div>
               )}
-              <div className={styles.docComment}><strong>Comments:</strong> {doc.reviewComment}</div>
+              {doc.status === 'Rejected' ? (
+  <div className={styles.docComment}>
+    <strong>Manager Comment:</strong> {doc.reviewComment}
+  </div>
+) : (
+ <div className={styles.docComment}>
+  <strong>Review Status:</strong> {doc.reviewComment} <br />
+  <strong>Reviewed By:</strong> {doc.reviewer}
+</div>
+)}
               <button className={styles.uploadBtn} onClick={() => toggleView(doc.id)}>
                 {expandedDocId === doc.id ? 'Hide' : 'View'} Document
               </button>
@@ -338,6 +474,47 @@ function AuthorDashboard() {
             </div>
           ))}
         </section>
+
+        {rejectedDocuments.length > 0 && (
+          <section className={styles.documentSection}>
+            {rejectedDocuments.length === 0 && (
+  <div className={styles.noDocs}>No rejected documents found.</div>
+)}
+            <h2>❌ Rejected Documents</h2>
+            {rejectedDocuments.map((doc, index) => (
+              <div key={index} className={styles.documentCard}>
+                <div className={styles.docHeader}>
+                  ❌ {doc.title}
+                </div>
+                <div className={styles.docMeta}>
+                  📂 Folder: <strong>{doc.folder}</strong>
+                </div>
+                <div className={styles.docComment}>
+  <strong>Manager Comment:</strong> {doc.reviewComment || 'No comment provided by manager.'} <br />
+  <strong>Reviewed By:</strong> {doc.reviewer}
+</div>
+                <div className={styles.actionButtons}>
+                  <button
+                    className={styles.rejectBtn}
+                    onClick={() => deleteRejectedDoc(doc)}
+                  >
+                    🗑️ Delete
+                  </button>
+                  <button
+                    className={styles.uploadBtn}
+                    onClick={() => toggleView(doc.id)}
+                  >
+                    {expandedDocId === doc.filename ? 'Hide' : 'View'} Document
+                  </button>
+                </div>
+                {expandedDocId === doc.id && (
+                  <pre className={styles.docPreview}>{doc.content}</pre>
+                )}
+              </div>
+            ))}
+          </section>
+        )}
+
 
         <Toast
           message={toastMessage}
