@@ -1,9 +1,0 @@
-nohup: ignoring input
-
-> auth-backend@1.0.0 start
-> node server.js
-
-[dotenv@17.2.0] injecting env (4) from .env (tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] })
-🚀 Server running on http://localhost:4000
-✅ MongoDB connected
-Killed
