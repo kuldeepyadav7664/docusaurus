@@ -1,0 +1,45 @@
+name: Deploy to EC2 via SSH
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'docs/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /var/www/html/docusaurus
+
+            echo "🔧 Setting up Git credentials..."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "actions@github.com"
+            git remote set-url origin https://kuldeepyadav7664:${{ secrets.PERSONAL_GH_TOKEN }}@github.com/kuldeepyadav7664/docusaurus.git
+
+            echo "🔄 Pulling latest changes..."
+            git pull origin main
+            git reset --hard origin/main
+
+            echo "📦 Installing dependencies..."
+            npm install
+
+            echo "🏗️ Building site..."
+            npm run build
+
+            echo "🚀 Restarting PM2..."
+            if pm2 list | grep -q docusaurus; then
+              pm2 restart docusaurus
+            else
+              pm2 start npx --name docusaurus -- serve -s build -l 3000
+            fi
+
+            echo "✅ Deployment complete."
