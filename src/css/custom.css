@@ -1,0 +1,86 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #2e8555;
+  --ifm-color-primary-dark: #29784c;
+  --ifm-color-primary-darker: #277148;
+  --ifm-color-primary-darkest: #205d3b;
+  --ifm-color-primary-light: #33925d;
+  --ifm-color-primary-lighter: #359962;
+  --ifm-color-primary-lightest: #3cad6e;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+/* For readability concerns, you should choose a lighter palette in dark mode. */
+[data-theme='dark'] {
+  --ifm-color-primary: #25c2a0;
+  --ifm-color-primary-dark: #21af90;
+  --ifm-color-primary-darker: #1fa588;
+  --ifm-color-primary-darkest: #1a8870;
+  --ifm-color-primary-light: #29d5b0;
+  --ifm-color-primary-lighter: #32d8b4;
+  --ifm-color-primary-lightest: #4fddbf;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+.header-github-link {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  margin-left: 10px;
+  background: url("https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png") no-repeat center;
+  background-size: contain;
+  border-radius: 6px;
+  padding: 4px;
+  transition: transform 0.2s ease-in-out, background-color 0.2s ease;
+}
+
+.header-github-link:hover {
+  transform: scale(1.1);
+  background-color: #f0f0f0;
+}
+
+html[data-theme='dark'] .header-github-link:hover {
+  background-color: #333;
+}
+
+.footer a i {
+  color: #f4f5f5; /* Change to your preferred color */
+  transition: color 0.3s ease;
+}
+
+.footer a:hover i {
+  color: #4592ef; /* Optional hover color */
+}
+
+.footer {
+  color: #e0f7ff; /* Light blue or your preferred color */
+}
+
+.footer a {
+  color: #d2dde3; /* Link color */
+  transition: color 0.3s ease;
+}
+
+
+
+.login-logout-button {
+  background-color: var(--ifm-color-primary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-logout-button:hover {
+  background-color: var(--ifm-color-primary-dark);
+}

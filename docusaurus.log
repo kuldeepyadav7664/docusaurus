@@ -1,0 +1,33 @@
+nohup: ignoring input
+
+> my-website@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled with some errors in 39.13s
+Module not found: Error: Can't resolve 'react-toastify' in '/var/www/html/docusaurus/src/pages'
+
+--------------------------
+
+Module not found: Error: Can't resolve 'react-toastify/dist/ReactToastify.css' in '/var/www/html/docusaurus/src/pages'
+client (webpack 5.99.9) compiled with 2 errors
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 3.11s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 3.37s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.87s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 643.56ms
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.75s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 525.01ms
+client (webpack 5.99.9) compiled successfully

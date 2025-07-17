@@ -1,0 +1,25 @@
+nohup: ignoring input
+
+> my-website@0.0.0 start
+> docusaurus start
+
+[INFO] Starting the development server...
+[SUCCESS] Docusaurus website is running at: http://localhost:3000/
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 3.18s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.73s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 958.37ms
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.74s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.07s
+client (webpack 5.99.9) compiled successfully
+[webpackbar] ℹ Compiling Client
+[webpackbar] ✔ Client: Compiled successfully in 1.41s
+client (webpack 5.99.9) compiled successfully
